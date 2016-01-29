@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="server_url">http://178.62.112.203/</string>
+    <string name="server_content_type">application/json</string>
+
+    <string name="server_url_login">api/tma/login</string>
+    <string name="server_url_get_user">api/tma/user</string>
+
+    <string name="key_request">request</string>
+    <string name="key_user_name">user_name</string>
+    <string name="key_password">password</string>
+    <string name="key_token">access_token</string>
+</resources>

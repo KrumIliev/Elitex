@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    android:orientation="vertical"
+    android:paddingBottom="10dp"
+    android:paddingLeft="100dp"
+    android:paddingRight="100dp"
+    android:paddingTop="10dp">
+
+    <EditText
+        android:id="@+id/sign_in_user"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1"
+        android:hint="@string/hint_user"
+        android:padding="5dp"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/colorTextLite"
+        android:textColorHint="@color/colorTextLite" />
+
+    <EditText
+        android:id="@+id/sign_in_password"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="1"
+        android:hint="@string/hint_password"
+        android:inputType="textPassword"
+        android:padding="5dp"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/colorTextLite"
+        android:textColorHint="@color/colorTextLite" />
+
+    <Button
+        android:id="@+id/sign_in_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        android:layout_weight="1"
+        android:background="@drawable/button_custom"
+        android:padding="5dp"
+        android:text="@string/button_sign_in"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/colorTextLite" />
+
+    <Button
+        android:id="@+id/sign_in_button_qr"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        android:layout_weight="1"
+        android:background="@drawable/button_custom"
+        android:padding="5dp"
+        android:text="@string/button_sign_in_QR"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/colorTextLite" />
+</LinearLayout>
