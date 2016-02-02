@@ -22,6 +22,8 @@
     <string name="button_back">Назад</string>
     <string name="button_scan">Сканиране</string>
     <string name="massage_barcode">Моля центрирайте кода в рамката на екрана.</string>
+    <string name="massage_user">Полето за потребител е празно.</string>
+    <string name="massage_password">Полето за парола е празно.</string>
 
     <!-- Strings related to main -->
     <string name="massage_operation">Пригответе баркода с операцията и натиснтене бутона.</string>

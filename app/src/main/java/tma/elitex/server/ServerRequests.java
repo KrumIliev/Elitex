@@ -1,4 +1,4 @@
-package tma.elitex;
+package tma.elitex.server;
 
 /**
  * Created by Krum on 1/17/2016.

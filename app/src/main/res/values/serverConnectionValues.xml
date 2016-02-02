@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Server url -->
     <string name="server_url">http://178.62.112.203/</string>
-    <string name="server_content_type">application/json</string>
-
     <string name="server_url_login">api/tma/login</string>
-    <string name="server_url_get_user">api/tma/user</string>
+    <string name="server_url_token">api/tma/user</string>
 
+    <!-- Server headers -->
+    <string name="server_content_type">Content-Type</string>
+    <string name="server_content_type_value">application/json</string>
+    <string name="server_accept">Accept</string>
+    <string name="server_accept_value">application/vnd.elitex-v1+json</string>
+    <string name="server_authorization">Authorization</string>
+
+    <!-- Server methods -->
+    <string name="server_method_post">POST</string>
+    <string name="server_method_get">GET</string>
+    <string name="server_method_patch">PATCH</string>
+    <string name="server_method_del">DEL</string>
+
+    <!-- Server params -->
     <string name="key_request">request</string>
+    <string name="key_listener">listener</string>
     <string name="key_user_name">user_name</string>
     <string name="key_password">password</string>
     <string name="key_token">access_token</string>
+    <string name="key_massage">message</string>
 </resources>
