@@ -4,6 +4,7 @@
     <string name="server_url">http://178.62.112.203/</string>
     <string name="server_url_login">api/tma/login</string>
     <string name="server_url_token">api/tma/user</string>
+    <string name="server_url_operation">api/tma/processes/</string>
 
     <!-- Server headers -->
     <string name="server_content_type">Content-Type</string>
@@ -31,5 +32,6 @@
     <string name="key_department_name">name</string>
     <string name="key_department_kind">kind</string>
     <string name="key_roles">roles</string>
+    <string name="key_operation_id">operation_id</string>
 
 </resources>

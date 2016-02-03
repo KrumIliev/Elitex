@@ -1,18 +1,5 @@
 <resources>
     <string name="app_name">Elitex</string>
-    
-    <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
 
     <!-- Strings related to Sign In -->
     <string name="hint_user">Потребител</string>
@@ -26,8 +13,12 @@
     <string name="massage_password">Полето за парола е празно.</string>
 
     <!-- Strings related to main -->
-    <string name="massage_operation">Пригответе баркода с операцията и натиснтене бутона.</string>
+    <string name="massage_operation_barcode">Пригответе баркода с операцията и натиснтене бутона.</string>
+    <string name="massage_operation_qr_code">Пригответе QR кода с партидата и натиснтене бутона.</string>
     <string name="button_load">Зареди операция</string>
+    <string name="button_load_qr">Зареди партида</string>
+    <string name="massage_load_failed">Баркода не може да бъде разчетен</string>
+    <string name="massage_server_failed">Операцията не може да бъде изпълнена в момента</string>
 
     <!-- Other strings -->
     <string name="loading">Моля изчакайте!</string>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
@@ -8,45 +7,26 @@
     android:padding="20dp">
 
     <TextView
+        android:id="@+id/main_info_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/colorTextLite"
         android:gravity="center_horizontal"
-        android:text="@string/massage_operation"/>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_weight="1">
-
-        <com.journeyapps.barcodescanner.BarcodeView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/zxing_barcode_surface"
-            app:zxing_framing_rect_width="250dp"
-            app:zxing_framing_rect_height="50dp"/>
-
-        <com.journeyapps.barcodescanner.ViewfinderView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/zxing_viewfinder_view"
-            app:zxing_possible_result_points="@color/zxing_custom_possible_result_points"
-            app:zxing_result_view="@color/zxing_custom_result_view"
-            app:zxing_viewfinder_laser="@color/zxing_custom_viewfinder_laser"
-            app:zxing_viewfinder_mask="@color/zxing_custom_viewfinder_mask"/>
-    </RelativeLayout>
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/massage_operation_barcode"/>
 
     <Button
         android:id="@+id/main_load_button"
         android:layout_width="match_parent"
+        android:layout_margin="80dp"
         android:layout_height="wrap_content"
         android:background="@drawable/button_custom"
-        android:padding="5dp"
+        android:padding="10dp"
         android:text="@string/button_load"
+        android:layout_centerInParent="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/colorTextLite" />
 
-</LinearLayout>
+</RelativeLayout>
