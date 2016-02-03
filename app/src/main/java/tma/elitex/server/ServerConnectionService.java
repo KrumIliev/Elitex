@@ -2,12 +2,15 @@ package tma.elitex.server;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -27,7 +30,7 @@ public class ServerConnectionService extends IntentService {
 
     private String LOG_TAG = ServerConnectionService.class.getSimpleName();
 
-    private ServerListener mServerListener;
+    private ResultReceiver mServerListener;
 
     public ServerConnectionService() {
         super(ServerConnectionService.class.getSimpleName());
@@ -37,7 +40,7 @@ public class ServerConnectionService extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         // Initialize the server listener that communicates with the colling activity
-        mServerListener = (ServerListener) intent.getSerializableExtra(getString(R.string.key_listener));
+        mServerListener = intent.getParcelableExtra(getString(R.string.key_listener));
 
         String body, method, serverPath, token = null;
 
@@ -80,8 +83,8 @@ public class ServerConnectionService extends IntentService {
             // Create the connection
             URL url = new URL(serverURL);
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoInput(true);
             urlConnection.setDoOutput(true);
+            urlConnection.setDoInput(true);
 
             // Add request headers
             urlConnection.setRequestMethod(method);
@@ -93,24 +96,42 @@ public class ServerConnectionService extends IntentService {
 
             // Add request body
             outputStream = urlConnection.getOutputStream();
-            outputStream.write(body.getBytes("UTF-8"));
+            byte[] outputStringBytes = body.getBytes();
+            outputStream.write(outputStringBytes);
             outputStream.flush();
+            outputStream.close();
 
             // Read response
-            inputStream = urlConnection.getInputStream();
+            if (urlConnection.getResponseCode() == 400) {
+                inputStream = urlConnection.getErrorStream();
+            } else {
+                inputStream = urlConnection.getInputStream();
+            }
+
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) throw new RuntimeException("Input Stream null");
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
-            while ((line = reader.readLine()) != null) buffer.append(line);
+            try {
+                while ((line = reader.readLine()) != null) buffer.append(line);
+            } catch (EOFException e) {
+            }
+
+            inputStream.close();
             String result = buffer.toString();
             Log.d(LOG_TAG, result);
-            mServerListener.requestReady(result);
+
+            // Return results
+            Bundle bundle = new Bundle();
+            bundle.putString(ServerResultReceiver.KEY_RESULT, result);
+            mServerListener.send(ServerResultReceiver.RESULT_OK, bundle);
 
         } catch (Exception e) {
-            mServerListener.requestFailed(e);
-            Log.d(LOG_TAG, e.toString());
+            Bundle bundle = new Bundle();
+            bundle.putString(ServerResultReceiver.KEY_ERROR, e.toString());
+            mServerListener.send(ServerResultReceiver.RESULT_FAIL, bundle);
         } finally {
+            // Check if anything is still open and close it.
             try {
                 if (urlConnection != null) urlConnection.disconnect();
                 if (reader != null) reader.close();
@@ -140,8 +161,6 @@ public class ServerConnectionService extends IntentService {
             // Create the connection
             URL url = new URL(serverURL);
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoInput(true);
-            urlConnection.setDoOutput(true);
 
             // Add request headers
             urlConnection.setRequestMethod(method);
@@ -150,19 +169,36 @@ public class ServerConnectionService extends IntentService {
             urlConnection.setRequestProperty(getString(R.string.server_authorization), getString(R.string.key_token) + "=" + token);
 
             // Read response
-            inputStream = urlConnection.getInputStream();
+            if (urlConnection.getResponseCode() == 400) {
+                inputStream = urlConnection.getErrorStream();
+            } else {
+                inputStream = urlConnection.getInputStream();
+            }
+
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) throw new RuntimeException("Input Stream null");
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
-            while ((line = reader.readLine()) != null) buffer.append(line);
+
+            try {
+                while ((line = reader.readLine()) != null) buffer.append(line);
+            } catch (EOFException e) {
+                // Stream has ended unexpectedly do nothing and proceed to reading result
+            }
+
+            inputStream.close();
             String result = buffer.toString();
             Log.d(LOG_TAG, result);
-            mServerListener.requestReady(result);
+
+            // Return results
+            Bundle bundle = new Bundle();
+            bundle.putString(ServerResultReceiver.KEY_RESULT, result);
+            mServerListener.send(ServerResultReceiver.RESULT_OK, bundle);
 
         } catch (Exception e) {
-            mServerListener.requestFailed(e);
-            Log.d(LOG_TAG, e.toString());
+            Bundle bundle = new Bundle();
+            bundle.putString(ServerResultReceiver.KEY_ERROR, e.toString());
+            mServerListener.send(ServerResultReceiver.RESULT_FAIL, bundle);
         } finally {
             try {
                 if (urlConnection != null) urlConnection.disconnect();

@@ -1,6 +1,7 @@
 package tma.elitex;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,12 +16,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import tma.elitex.server.ServerConnectionService;
-import tma.elitex.server.ServerListener;
+import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerRequests;
+import tma.elitex.server.ServerResultReceiver;
 
-public class SignInActivity extends AppCompatActivity implements View.OnClickListener, ServerListener {
+public class SignInActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener {
 
     private final String LOG_TAG = SignInActivity.class.getSimpleName();
+
+    private ServerResultReceiver mResultReceiver; // Server service communication
 
     private EditText mUserEditText; // User name input field
     private EditText mPasswordEditText; // Password input field
@@ -29,6 +33,10 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+
+        // Initializing server communication
+        mResultReceiver = new ServerResultReceiver(new Handler());
+        mResultReceiver.serListener(this);
 
         // Initializing input
         mUserEditText = (EditText) findViewById(R.id.sign_in_user);
@@ -65,9 +73,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         if (checkUserInput()) {
             String userName = mUserEditText.getText().toString();
             String password = mPasswordEditText.getText().toString();
-            ServerListener listener = this;
             Intent intent = new Intent(this, ServerConnectionService.class);
-            intent.putExtra(getString(R.string.key_listener), listener);
+            intent.putExtra(getString(R.string.key_listener), mResultReceiver);
             intent.putExtra(getString(R.string.key_request), ServerRequests.LOGIN_USER);
             intent.putExtra(getString(R.string.key_user_name), userName);
             intent.putExtra(getString(R.string.key_password), password);
@@ -78,9 +85,9 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
      *  Initializes the server token login
      */
     private void loginToken (String token) {
-        ServerListener listener = this;
         Intent intent = new Intent(this, ServerConnectionService.class);
-        intent.putExtra(getString(R.string.key_listener), listener);
+        intent.putExtra(getString(R.string.key_request), ServerRequests.LOGIN_TOKEN);
+        intent.putExtra(getString(R.string.key_listener), mResultReceiver);
         intent.putExtra(getString(R.string.key_token), token);
         startService(intent);
     }
@@ -135,6 +142,10 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 String token = json.getString(getString(R.string.key_token));
                 loginToken(token);
 
+            } else if (json.has(getString(R.string.key_name))) {
+                // Retrieving user information
+                //TODO save information
+
             } else if (json.has(getString(R.string.key_massage))) {
                 // There was a problem with the request get and show massage
                 String massage = json.getString(getString(R.string.key_massage));
@@ -148,10 +159,5 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             // The server has returned unknown result log it
             Log.d(LOG_TAG, e.toString());
         }
-    }
-
-    @Override
-    public void requestFailed(Exception e) {
-        Log.d(LOG_TAG, e.toString());
     }
 }

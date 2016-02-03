@@ -3,6 +3,7 @@
     package="tma.elitex" >
 
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -19,6 +20,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".server.ServerConnectionService" android:exported="false" />
     </application>
 
 </manifest>
