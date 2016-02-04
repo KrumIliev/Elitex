@@ -10,7 +10,7 @@ import java.util.Date;
  * Class for holding application data in SharedPreferences.
  * It can store the data for one user and one operation.
  *
- * Created by Krum.
+ * Created by Krum Iliev.
  */
 public class ElitexData {
 

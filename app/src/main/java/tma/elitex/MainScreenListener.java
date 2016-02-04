@@ -1,7 +1,7 @@
 package tma.elitex;
 
 /**
- * Created by Krum on 2/3/2016.
+ * Created by Krum Iliev.
  */
 public interface MainScreenListener {
 

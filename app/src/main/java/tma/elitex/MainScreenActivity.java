@@ -23,7 +23,7 @@ import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
 
 /**
- * Created by Krum.
+ * Created by Krum Iliev.
  */
 public class MainScreenActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener, MainScreenListener {
 

@@ -1,10 +1,9 @@
 package tma.elitex;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.ArraySet;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -24,10 +23,13 @@ import tma.elitex.Utils.ElitexData;
 import tma.elitex.Utils.LoadingDialog;
 import tma.elitex.Utils.User;
 import tma.elitex.server.ServerConnectionService;
-import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerRequests;
+import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
 
+/**
+ * Created by Krum Iliev.
+ */
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener {
 
     private final String LOG_TAG = SignInActivity.class.getSimpleName();

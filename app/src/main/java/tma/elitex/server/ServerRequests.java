@@ -1,7 +1,7 @@
 package tma.elitex.server;
 
 /**
- * Created by Krum on 1/17/2016.
+ * Created by Krum Iliev.
  */
 public enum ServerRequests {
     LOGIN_USER, LOGIN_TOKEN, LOAD_OPERATION, LOAD_BATCH

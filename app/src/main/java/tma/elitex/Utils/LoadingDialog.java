@@ -8,7 +8,7 @@ import android.view.Window;
 import tma.elitex.R;
 
 /**
- * Created by T1000 on 2/4/2016.
+ * Created by Krum Iliev.
  */
 public class LoadingDialog extends Dialog {
 

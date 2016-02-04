@@ -7,7 +7,7 @@ import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
 /**
- * Created by Krum Iliev on 2/3/2016.
+ * Created by Krum Iliev.
  */
 @SuppressLint("ParcelCreator")
 public class ServerResultReceiver extends ResultReceiver {

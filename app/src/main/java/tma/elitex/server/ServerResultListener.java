@@ -1,7 +1,7 @@
 package tma.elitex.server;
 
 /**
- * Created by Krum on 2/2/2016.
+ * Created by Krum Iliev.
  */
 public interface ServerResultListener {
     void requestReady (String result);
