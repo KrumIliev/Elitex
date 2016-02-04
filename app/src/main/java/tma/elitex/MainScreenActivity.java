@@ -16,19 +16,21 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import tma.elitex.Utils.ElitexData;
 import tma.elitex.server.ServerConnectionService;
 import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
 
 /**
- * Created by Krum on 1/17/2016.
+ * Created by Krum.
  */
 public class MainScreenActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener, MainScreenListener {
 
     private final String LOG_TAG = MainScreenActivity.class.getSimpleName();
 
     private ServerResultReceiver mResultReceiver; // Server service communication
+    private ElitexData mElitexData; // Stored data access
 
     private Button mButton;
     private TextView mText;
@@ -36,6 +38,8 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
     private boolean mOperationLoaded = false;
     private boolean mLoadingOperation = false;
     private boolean mLoadingBatch = false;
+
+    private MainScreenInfoDialog mInfoDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,14 +50,24 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
         mResultReceiver = new ServerResultReceiver(new Handler());
         mResultReceiver.serListener(this);
 
+        // Initializing fields
         mButton = (Button) findViewById(R.id.main_load_button);
         mText = (TextView) findViewById(R.id.main_info_text);
-
         mButton.setOnClickListener(this);
+
+        // Initializing Elitex data and setting action bar title
+        mElitexData = new ElitexData(this);
+        getSupportActionBar().setTitle(mElitexData.getActionBarTitle());
+
+        mInfoDialog = new MainScreenInfoDialog(this, this);
     }
 
     @Override
     public void onClick(View v) {
+        // Initiating barcode/QR code scanning.
+        // If the operation is loaded the QR code scanner will be activated.
+        // Else the barcode scanner will be activated.
+
         IntentIntegrator integrator = new IntentIntegrator(this);
 
         if (mOperationLoaded) {
@@ -76,7 +90,9 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if(result != null) {
             if(result.getContents() == null) {
-                Toast.makeText(this, getString(R.string.massage_load_failed), Toast.LENGTH_LONG).show();
+                mText.setText(getString(R.string.massage_load_failed));
+                mLoadingOperation = false;
+                mLoadingBatch = false;
 
             } else {
                 if (mLoadingOperation) {
@@ -92,6 +108,11 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    /**
+     * Initiates loading operation in ServerConnectionService
+     *
+     * @param operationID ID of the operation that needs to be loaded
+     */
     private void loadOperation (String operationID) {
         Intent intent = new Intent(this, ServerConnectionService.class);
         intent.putExtra(getString(R.string.key_listener), mResultReceiver);
@@ -100,6 +121,11 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
         startService(intent);
     }
 
+    /**
+     * Initiates loading batch in ServerConnectionService
+     *
+     * @param batchID ID of the batch that needs to be loaded
+     */
     private void loadBatch (String batchID) {
         Intent intent = new Intent(this, ServerConnectionService.class);
         intent.putExtra(getString(R.string.key_listener), mResultReceiver);

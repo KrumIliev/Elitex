@@ -21,6 +21,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".MainScreenActivity" android:screenOrientation="landscape" />
+
         <service android:name=".server.ServerConnectionService" android:exported="false" />
     </application>
 

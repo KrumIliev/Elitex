@@ -29,6 +29,7 @@
     <string name="key_id">id</string>
     <string name="key_name">name</string>
     <string name="key_department">department</string>
+    <string name="key_department_id">id</string>
     <string name="key_department_name">name</string>
     <string name="key_department_kind">kind</string>
     <string name="key_roles">roles</string>
