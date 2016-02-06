@@ -1,4 +1,4 @@
-package tma.elitex.Utils;
+package tma.elitex.utils;
 
 import android.app.Dialog;
 import android.content.Context;

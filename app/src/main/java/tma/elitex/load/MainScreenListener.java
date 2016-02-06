@@ -1,11 +1,8 @@
-package tma.elitex;
+package tma.elitex.load;
 
 /**
  * Created by Krum Iliev.
  */
 public interface MainScreenListener {
-
-    void continueLoad();
-
-    void restartLoad();
+    void startLoading ();
 }

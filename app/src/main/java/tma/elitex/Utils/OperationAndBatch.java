@@ -1,4 +1,4 @@
-package tma.elitex.Utils;
+package tma.elitex.utils;
 
 /**
  * Created by Krum Iliev.
@@ -36,6 +36,9 @@ public class OperationAndBatch {
         this.mMachineName = machineName;
     }
 
+    /**
+     * Sets the batch data
+     */
     public void setBatch (int batchId, int batchNumber, String features, int distId, String colour, int batchCount) {
         this.mBatchId = batchId;
         this.mBatchNumber = batchNumber;
@@ -45,5 +48,34 @@ public class OperationAndBatch {
         this.mBatchCount = batchCount;
 
         mHasBatch = true;
+    }
+
+    /**
+     * Resets all the object data
+     */
+    public void reset () {
+        this.mOperationId = 0;
+        this.mName = null;
+        this.mSerialNumber = 0;
+        this.mAlignedTime = 0;
+        this.mOrderId = 0;
+        this.mOrderName = null;
+        this.mMachineId = 0;
+        this.mMachineName = null;
+        resetBatch();
+    }
+
+    /**
+     * Resets the batch data
+     */
+    public void resetBatch () {
+        this.mBatchId = 0;
+        this.mBatchNumber = 0;
+        this.mFeatures = null;
+        this.mDistributionId = 0;
+        this.mColour = null;
+        this.mBatchCount = 0;
+
+        mHasBatch = false;
     }
 }

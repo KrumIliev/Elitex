@@ -1,4 +1,4 @@
-package tma.elitex.Utils;
+package tma.elitex.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

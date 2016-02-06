@@ -3,79 +3,27 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@color/colorBackground"
-    android:padding="20dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="20dp">
 
     <TextView
-        android:id="@+id/info_model"
+        android:id="@+id/dialog_load_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Модел: Зимно Яке"
+        android:padding="5dp"
+        android:textSize="@dimen/text_size_large"
         android:textColor="@color/colorTextLite"
-        android:layout_gravity="left"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:gravity="center_horizontal"
+        android:text="@string/massage_operation_barcode"/>
 
-    <View
+    <Button
+        android:id="@+id/dialog_load_button"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/colorAccent"/>
-
-    <TextView
-        android:id="@+id/info_operation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Операция: 04 - Зачистване на насрещни мостри"
-        android:textColor="@color/colorTextLite"
-        android:layout_gravity="left"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/colorAccent"/>
-
-    <TextView
-        android:id="@+id/info_machine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Машина: Права"
-        android:textColor="@color/colorTextLite"
-        android:layout_gravity="left"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/info_batch_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:background="@drawable/button_custom"
-            android:padding="10dp"
-            android:text="@string/button_load"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/colorTextLite" />
-
-        <Button
-            android:id="@+id/info_cancel_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:background="@drawable/button_custom"
-            android:padding="10dp"
-            android:text="@string/button_load"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/colorTextLite" />
-
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_custom"
+        android:padding="20dp"
+        android:text="@string/button_load"
+        android:textSize="@dimen/text_size_large"
+        android:textColor="@color/colorTextLite" />
 </LinearLayout>

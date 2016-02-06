@@ -19,9 +19,10 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Set;
 
-import tma.elitex.Utils.ElitexData;
-import tma.elitex.Utils.LoadingDialog;
-import tma.elitex.Utils.User;
+import tma.elitex.load.MainScreenActivity;
+import tma.elitex.utils.ElitexData;
+import tma.elitex.utils.LoadingDialog;
+import tma.elitex.utils.User;
 import tma.elitex.server.ServerConnectionService;
 import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;

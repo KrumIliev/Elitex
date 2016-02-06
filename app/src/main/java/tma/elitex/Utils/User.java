@@ -1,6 +1,5 @@
-package tma.elitex.Utils;
+package tma.elitex.utils;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 /**

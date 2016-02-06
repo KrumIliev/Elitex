@@ -17,6 +17,8 @@
     <string name="massage_operation_qr_code">Пригответе QR кода с партидата и натиснтене бутона.</string>
     <string name="button_load">Зареди операция</string>
     <string name="button_load_qr">Зареди партида</string>
+    <string name="title_operation">Операция</string>
+    <string name="title_batch">Партида</string>
     <string name="massage_load_failed">Баркода не може да бъде разчетен</string>
     <string name="massage_server_failed">Операцията не може да бъде изпълнена в момента</string>
 
