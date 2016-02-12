@@ -22,6 +22,7 @@ public class ElitexData {
     private final String KEY_DEPARTMENT_KIND = "department_kind";
     private final String KEY_ROLES = "user_roles";
     private final String KEY_ACTIONBAR_TITLE = "title";
+    private final String KEY_TOKEN = "token";
 
     // Operation keys
     private final String KEY_OPERATION_ID = "operation_id";
@@ -155,5 +156,23 @@ public class ElitexData {
         );
 
         return operationAndBatch;
+    }
+
+    /**
+     * Saves the access token returned from the server
+     *
+     * @param accessToken server access token
+     */
+    public void setAccessToken (String accessToken) {
+        SharedPreferences.Editor dataEditor = mData.edit();
+        dataEditor.putString(KEY_TOKEN, accessToken);
+        dataEditor.apply();
+    }
+
+    /**
+     * @return server access token
+     */
+    public String getAccessToken () {
+        return mData.getString(KEY_TOKEN, null);
     }
 }

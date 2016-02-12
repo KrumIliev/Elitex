@@ -34,5 +34,9 @@
     <string name="key_department_kind">kind</string>
     <string name="key_roles">roles</string>
     <string name="key_operation_id">operation_id</string>
+    <string name="key_serial_number">serial_number</string>
+    <string name="key_aligned_time">aligned_time</string>
+    <string name="key_order">order</string>
+    <string name="key_machine_type">machine_type</string>
 
 </resources>

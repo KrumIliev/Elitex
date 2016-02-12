@@ -53,6 +53,7 @@ public class ServerResultReceiver extends ResultReceiver {
 
             } else if (resultCode == RESULT_FAIL) {
                 // There was a error log massage
+                mListener.requestFailed(resultData.getString(KEY_ERROR));
                 Log.d(LOG_TAG, resultData.getString(KEY_ERROR));
             } else {
                 // There was a error log massage

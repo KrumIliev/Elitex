@@ -19,7 +19,6 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Set;
 
-import tma.elitex.load.MainScreenActivity;
 import tma.elitex.utils.ElitexData;
 import tma.elitex.utils.LoadingDialog;
 import tma.elitex.utils.User;
@@ -101,6 +100,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
      *  Initializes the server token login
      */
     private void loginToken (String token) {
+        new ElitexData(this).setAccessToken(token);
         Intent intent = new Intent(this, ServerConnectionService.class);
         intent.putExtra(getString(R.string.key_request), ServerRequests.LOGIN_TOKEN);
         intent.putExtra(getString(R.string.key_listener), mResultReceiver);
@@ -164,7 +164,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 mLoading.dismiss(); // Remove loading dialog
 
                 // Start proceed to next activity
-                Intent intent = new Intent(this, MainScreenActivity.class);
+                Intent intent = new Intent(this, LoadActivity.class);
                 startActivity(intent);
 
             } else if (json.has(getString(R.string.key_massage))) {

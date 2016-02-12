@@ -1,4 +1,4 @@
-package tma.elitex.load;
+package tma.elitex;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,20 +16,20 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import tma.elitex.R;
 import tma.elitex.server.ServerConnectionService;
 import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
 import tma.elitex.utils.ElitexData;
+import tma.elitex.utils.ErrorDialog;
 import tma.elitex.utils.OperationAndBatch;
 
 /**
  * Created by Krum Iliev.
  */
-public class MainScreenActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener {
+public class LoadActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener {
 
-    private final String LOG_TAG = MainScreenActivity.class.getSimpleName();
+    private final String LOG_TAG = LoadActivity.class.getSimpleName();
 
     private ServerResultReceiver mResultReceiver; // Server service communication
     private ElitexData mElitexData; // Stored data access
@@ -56,7 +56,7 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
     private Button mLoad;
     private Button mCancel;
 
-    private OperationAndBatch mOerationAndBatch; // Object for storing the result data from server requests
+    private OperationAndBatch mOperationAndBatch; // Object for storing the result data from server requests
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,10 +118,15 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
             if (result.getContents() == null) {
-                //TODO show error massage dialog
+                if (mLoadingOperation) {
+                    resetView();
+                    new ErrorDialog(this, getString(R.string.massage_barcode_failed)).show();
+                }
 
-                if (mLoadingOperation) resetView();
-                if (mLoadingBatch) resetViewWithOperation();
+                if (mLoadingBatch) {
+                    resetViewWithOperation();
+                    new ErrorDialog(this, getString(R.string.massage_qr_code_failed)).show();
+                }
 
             } else {
                 if (mLoadingOperation) loadOperation(result.getContents());
@@ -138,9 +143,11 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
      * @param operationID ID of the operation that needs to be loaded
      */
     private void loadOperation(String operationID) {
+        Log.d(LOG_TAG, operationID);
         Intent intent = new Intent(this, ServerConnectionService.class);
         intent.putExtra(getString(R.string.key_listener), mResultReceiver);
         intent.putExtra(getString(R.string.key_request), ServerRequests.LOAD_OPERATION);
+        intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
         intent.putExtra(getString(R.string.key_operation_id), operationID);
         startService(intent);
     }
@@ -160,15 +167,13 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void requestReady(String result) {
+        Log.d(LOG_TAG, result);
         JSONObject json;
 
         // Parse resulting string in json format
         try {
             json = new JSONObject(result);
-
-            if (mLoadingOperation) {
-                //TODO show info dialog
-            }
+            if (mLoadingOperation) readOperationFromJson(json);
 
             if (mLoadingBatch) {
                 //TODO show info dialog
@@ -179,11 +184,65 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
             // If the error happened during loading operation reset the hole view.
             // If the error happened during loading batch reset only the batch data.
             Log.d(LOG_TAG, e.toString());
-            // TODO show error massage dialog
-            if (mLoadingOperation) resetView();
-            if (mLoadingBatch) resetViewWithOperation();
+
+            if (mLoadingOperation) {
+                resetView();
+                new ErrorDialog(this, getString(R.string.massage_operation_failed)).show();
+            }
+            if (mLoadingBatch) {
+                resetViewWithOperation();
+                new ErrorDialog(this, getString(R.string.massage_batch_failed)).show();
+            }
             return;
         }
+    }
+
+    @Override
+    public void requestFailed(String error) {
+        new ErrorDialog(this, error).show();
+
+        if (mLoadingOperation) resetView();
+        if (mLoadingBatch) resetViewWithOperation();
+    }
+
+    private void readOperationFromJson (JSONObject json) throws JSONException{
+        // Create data holding object
+        if (mOperationAndBatch != null) {
+            // if the object exists already reuse it
+            mOperationAndBatch.setOperation(
+                    json.getInt(getString(R.string.key_id)),
+                    json.getString(getString(R.string.key_name)),
+                    json.getInt(getString(R.string.key_serial_number)),
+                    json.getDouble(getString(R.string.key_aligned_time)),
+                    json.getJSONObject(getString(R.string.key_order)).getInt(getString(R.string.key_id)),
+                    json.getJSONObject(getString(R.string.key_order)).getString(getString(R.string.key_name)),
+                    json.getJSONObject(getString(R.string.key_machine_type)).getInt(getString(R.string.key_id)),
+                    json.getJSONObject(getString(R.string.key_machine_type)).getString(getString(R.string.key_name))
+            );
+        } else {
+            // else create the object
+            mOperationAndBatch = new OperationAndBatch(
+                    json.getInt(getString(R.string.key_id)),
+                    json.getString(getString(R.string.key_name)),
+                    json.getInt(getString(R.string.key_serial_number)),
+                    json.getDouble(getString(R.string.key_aligned_time)),
+                    json.getJSONObject(getString(R.string.key_order)).getInt(getString(R.string.key_id)),
+                    json.getJSONObject(getString(R.string.key_order)).getString(getString(R.string.key_name)),
+                    json.getJSONObject(getString(R.string.key_machine_type)).getInt(getString(R.string.key_id)),
+                    json.getJSONObject(getString(R.string.key_machine_type)).getString(getString(R.string.key_name))
+            );
+        }
+
+        mOperationContainer.setVisibility(View.VISIBLE);
+        mOperationName.setText(mOperationAndBatch.mName);
+        mOperationModel.setText(mOperationAndBatch.mOrderName);
+        mOperationMachine.setText(mOperationAndBatch.mMachineName);
+        mLoad.setText(getString(R.string.button_load_qr));
+        mCancel.setVisibility(View.VISIBLE);
+        mOperationLoaded = true;
+        mLoadingOperation = false;
+
+        Log.d(LOG_TAG, mOperationAndBatch.mOrderName);
     }
 
     /**
@@ -198,7 +257,7 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
         mBatchContainer.setVisibility(View.GONE); // Remove batch data container from the view
         mCancel.setVisibility(View.GONE); // Remove cancel button from view it is not needed when loading operation
         mLoad.setText(getString(R.string.button_load)); // Change load button text
-        if (mOerationAndBatch != null) mOerationAndBatch.reset(); // Reset the data holding object /just in case/. Object can be null.
+        if (mOperationAndBatch != null) mOperationAndBatch.reset(); // Reset the data holding object /just in case/. Object can be null.
     }
 
     /**
@@ -213,7 +272,7 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
         mBatchContainer.setVisibility(View.GONE); // Batch is still not loaded, hide batch container
         mCancel.setVisibility(View.VISIBLE); // Show cancel button to cancel the current operation
         mLoad.setText(getString(R.string.button_load_qr)); // Change load button text
-        mOerationAndBatch.resetBatch(); // Reset the batch data /just in case/
+        mOperationAndBatch.resetBatch(); // Reset the batch data /just in case/
     }
 
     public void startLoading() {
@@ -229,7 +288,7 @@ public class MainScreenActivity extends AppCompatActivity implements View.OnClic
             integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
             mLoadingBatch = true;
         } else {
-            integrator.setDesiredBarcodeFormats(IntentIntegrator.DATA_MATRIX_TYPES);
+            integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
             mLoadingOperation = true;
         }
 

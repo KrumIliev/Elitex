@@ -59,6 +59,12 @@ public class ServerConnectionService extends IntentService {
                 token = intent.getStringExtra(getString(R.string.key_token));
                 requestNoBody(serverPath, method, token);
                 break;
+            case LOAD_OPERATION:
+                method = getString(R.string.server_method_get);
+                serverPath = getString(R.string.server_url_operation) + intent.getStringExtra(getString(R.string.key_operation_id));
+                token = intent.getStringExtra(getString(R.string.key_token));
+                requestNoBody(serverPath, method, token);
+                break;
         }
     }
 
@@ -101,15 +107,24 @@ public class ServerConnectionService extends IntentService {
             outputStream.flush();
             outputStream.close();
 
+            Log.d(LOG_TAG, "Request with no body");
+            Log.d(LOG_TAG, "Token: " + token);
+            Log.d(LOG_TAG, "Response code: " + urlConnection.getResponseCode());
+
             // Read response
             if (urlConnection.getResponseCode() == 400) {
                 inputStream = urlConnection.getErrorStream();
+            } if (urlConnection.getResponseCode() == 404) {
+                throw new RuntimeException("Възникна проблем със заявката");
             } else {
                 inputStream = urlConnection.getInputStream();
             }
 
             StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) throw new RuntimeException("Input Stream null");
+            if (inputStream == null) {
+                Log.d(LOG_TAG, "Input Stream null");
+                throw new RuntimeException(getString(R.string.massage_server_failed));
+            }
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             try {
@@ -168,15 +183,24 @@ public class ServerConnectionService extends IntentService {
             urlConnection.setRequestProperty(getString(R.string.server_accept), getString(R.string.server_accept_value));
             urlConnection.setRequestProperty(getString(R.string.server_authorization), getString(R.string.key_token) + "=" + token);
 
+            Log.d(LOG_TAG, "Request with no body");
+            Log.d(LOG_TAG, "Token: " + token);
+            Log.d(LOG_TAG, "Response code: " + urlConnection.getResponseCode());
+
             // Read response
             if (urlConnection.getResponseCode() == 400) {
                 inputStream = urlConnection.getErrorStream();
+            } if (urlConnection.getResponseCode() == 404) {
+                throw new RuntimeException("Възникна проблем със заявката");
             } else {
                 inputStream = urlConnection.getInputStream();
             }
 
             StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) throw new RuntimeException("Input Stream null");
+            if (inputStream == null) {
+                Log.d(LOG_TAG, "Input Stream null");
+                throw new RuntimeException(getString(R.string.massage_server_failed));
+            }
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
 
@@ -201,6 +225,7 @@ public class ServerConnectionService extends IntentService {
             mServerListener.send(ServerResultReceiver.RESULT_FAIL, bundle);
         } finally {
             try {
+
                 if (urlConnection != null) urlConnection.disconnect();
                 if (reader != null) reader.close();
                 if (inputStream != null) inputStream.close();

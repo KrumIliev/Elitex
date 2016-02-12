@@ -7,7 +7,7 @@
     android:padding="20dp">
 
     <TextView
-        android:id="@+id/dialog_load_text"
+        android:id="@+id/dialog_error_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="5dp"
@@ -17,13 +17,13 @@
         android:text="@string/massage_operation_barcode"/>
 
     <Button
-        android:id="@+id/dialog_load_button"
+        android:id="@+id/dialog_error_button"
         android:layout_width="match_parent"
         android:layout_marginTop="20dp"
         android:layout_height="wrap_content"
         android:background="@drawable/button_custom"
         android:padding="20dp"
-        android:text="@string/button_load"
+        android:text="@android:string/ok"
         android:textSize="@dimen/text_size_large"
         android:textColor="@color/colorTextLite" />
 </LinearLayout>

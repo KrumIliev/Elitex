@@ -25,11 +25,18 @@ public class OperationAndBatch {
 
     public boolean mHasBatch = false;
 
-    public OperationAndBatch(int operationId, String name, int serialNum, float time, int orderId, String orderName, int machineId, String machineName) {
+    public OperationAndBatch(int operationId, String name, int serialNum, double time, int orderId, String orderName, int machineId, String machineName) {
+        setOperation(operationId, name, serialNum, time, orderId, orderName, machineId, machineName);
+    }
+
+    /**
+     * Sets the operation data
+     */
+    public void setOperation (int operationId, String name, int serialNum, double time, int orderId, String orderName, int machineId, String machineName) {
         this.mOperationId = operationId;
         this.mName = name;
         this.mSerialNumber = serialNum;
-        this.mAlignedTime = time;
+        this.mAlignedTime = (float) time;
         this.mOrderId = orderId;
         this.mOrderName = orderName;
         this.mMachineId = machineId;
