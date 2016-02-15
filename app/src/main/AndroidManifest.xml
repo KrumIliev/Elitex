@@ -23,7 +23,7 @@
 
         <activity android:name=".LoadActivity" android:screenOrientation="landscape" />
         <activity android:name=".WorkActivity" android:screenOrientation="landscape" />
-        <activity android:name=".ReferenceActivity" android:screenOrientation="landscape" />
+        <activity android:name=".reference.ReferenceActivity" android:screenOrientation="landscape" />
 
         <service android:name=".server.ServerConnectionService" android:exported="false" />
     </application>

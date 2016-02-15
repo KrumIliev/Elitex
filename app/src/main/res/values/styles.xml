@@ -25,7 +25,5 @@
 
     <style name="Widget.EditText.Color" parent="@android:style/Widget.EditText">
         <item name="android:textColor">@color/colorTextLite</item>
-        <item name="android:textSize">60dp</item>
-        <item name="android:padding">30dp</item>
     </style>
 </resources>

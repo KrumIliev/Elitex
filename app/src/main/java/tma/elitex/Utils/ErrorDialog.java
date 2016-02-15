@@ -11,6 +11,8 @@ import android.widget.TextView;
 import tma.elitex.R;
 
 /**
+ * Dialog for displaying error massages
+ *
  * Created by Krum Iliev.
  */
 public class ErrorDialog extends Dialog implements View.OnClickListener{
