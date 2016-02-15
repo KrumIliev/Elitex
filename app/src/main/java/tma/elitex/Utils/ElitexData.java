@@ -27,7 +27,7 @@ public class ElitexData {
     // Operation keys
     private final String KEY_OPERATION_ID = "operation_id";
     private final String KEY_OPERATION_NAME = "operation_name";
-    private final String KEY_SERIAL_NUBER = "serial_number";
+    private final String KEY_SERIAL_NUMBER = "serial_number";
     private final String KEY_ALIGNED_TIME = "aligned_time";
     private final String KEY_ORDER_ID = "order_id";
     private final String KEY_ORDER_NAME = "order_name";
@@ -38,9 +38,11 @@ public class ElitexData {
     private final String KEY_BATCH_ID = "batch_id";
     private final String KEY_BATCH_NUMBER = "batch_number";
     private final String KEY_FEATURES = "features";
-    private final String KEY_DISTRIBUTION_ID = "distribution_id";
+    private final String KEY_SIZE = "size";
     private final String KEY_COLOUR = "colour";
     private final String KEY_BATCH_COUNT = "batch_count";
+    private final String KEY_MADE = "made";
+    private final String KEY_REMAINING = "remaining";
 
     private final String PREFS_NAME = "elitexPrefsFile"; // Preference file name
     private SharedPreferences mData;
@@ -108,12 +110,12 @@ public class ElitexData {
         SharedPreferences.Editor dataEditor = mData.edit();
 
         // Add operation
-        dataEditor.putInt(KEY_OPERATION_ID, operationAndBatch.mOperationId);
-        dataEditor.putString(KEY_OPERATION_NAME, operationAndBatch.mName);
-        dataEditor.putInt(KEY_SERIAL_NUBER, operationAndBatch.mSerialNumber);
+        dataEditor.putString(KEY_OPERATION_ID, operationAndBatch.mOperationId);
+        dataEditor.putString(KEY_OPERATION_NAME, operationAndBatch.mOperationName);
+        dataEditor.putInt(KEY_SERIAL_NUMBER, operationAndBatch.mSerialNumber);
         dataEditor.putFloat(KEY_ALIGNED_TIME, operationAndBatch.mAlignedTime);
         dataEditor.putInt(KEY_ORDER_ID, operationAndBatch.mOrderId);
-        dataEditor.putString(KEY_ORDER_NAME, operationAndBatch.mOrderName);
+        dataEditor.putString(KEY_ORDER_NAME, operationAndBatch.mModelName);
         dataEditor.putInt(KEY_MACHINE_ID, operationAndBatch.mMachineId);
         dataEditor.putString(KEY_MACHINE_NAME, operationAndBatch.mMachineName);
 
@@ -121,9 +123,11 @@ public class ElitexData {
         dataEditor.putInt(KEY_BATCH_ID, operationAndBatch.mBatchId);
         dataEditor.putInt(KEY_BATCH_NUMBER, operationAndBatch.mBatchNumber);
         dataEditor.putString(KEY_FEATURES, operationAndBatch.mFeatures);
-        dataEditor.putInt(KEY_DISTRIBUTION_ID, operationAndBatch.mDistributionId);
         dataEditor.putString(KEY_COLOUR, operationAndBatch.mColour);
         dataEditor.putInt(KEY_BATCH_COUNT, operationAndBatch.mBatchCount);
+        dataEditor.putInt(KEY_MADE, operationAndBatch.mMade);
+        dataEditor.putInt(KEY_REMAINING, operationAndBatch.mRemaining);
+        dataEditor.putString(KEY_SIZE, operationAndBatch.mSize);
 
         // Save all changes
         dataEditor.apply();
@@ -136,9 +140,9 @@ public class ElitexData {
      */
     public OperationAndBatch getOperationAndBatch () {
         OperationAndBatch operationAndBatch = new OperationAndBatch(
-                mData.getInt(KEY_OPERATION_ID, 0),
+                mData.getString(KEY_OPERATION_ID, null),
                 mData.getString(KEY_OPERATION_NAME, null),
-                mData.getInt(KEY_SERIAL_NUBER, 0),
+                mData.getInt(KEY_SERIAL_NUMBER, 0),
                 mData.getFloat(KEY_ALIGNED_TIME, 0),
                 mData.getInt(KEY_ORDER_ID, 0),
                 mData.getString(KEY_ORDER_NAME, null),
@@ -150,9 +154,11 @@ public class ElitexData {
                 mData.getInt(KEY_BATCH_ID, 0),
                 mData.getInt(KEY_BATCH_NUMBER, 0),
                 mData.getString(KEY_FEATURES, null),
-                mData.getInt(KEY_DISTRIBUTION_ID, 0),
                 mData.getString(KEY_COLOUR, null),
-                mData.getInt(KEY_BATCH_COUNT, 0)
+                mData.getInt(KEY_BATCH_COUNT, 0),
+                mData.getInt(KEY_MADE, 0),
+                mData.getInt(KEY_REMAINING, 0),
+                mData.getString(KEY_SIZE, null)
         );
 
         return operationAndBatch;

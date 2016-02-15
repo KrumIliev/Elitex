@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:background="@color/colorBackground"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/dialog_features_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textSize="@dimen/text_size_large"
+            android:textColor="@color/colorTextLite"
+            android:gravity="center_horizontal"
+            android:text="@string/massage_operation_barcode"/>
+
+        <Button
+            android:id="@+id/dialog_features_button"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_custom"
+            android:padding="20dp"
+            android:text="@android:string/ok"
+            android:textSize="@dimen/text_size_large"
+            android:textColor="@color/colorTextLite" />
+    </LinearLayout>
+</ScrollView>

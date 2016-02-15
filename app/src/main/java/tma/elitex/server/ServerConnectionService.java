@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -60,8 +61,16 @@ public class ServerConnectionService extends IntentService {
                 requestNoBody(serverPath, method, token);
                 break;
             case LOAD_OPERATION:
+                // Initiates loading operation
                 method = getString(R.string.server_method_get);
                 serverPath = getString(R.string.server_url_operation) + intent.getStringExtra(getString(R.string.key_operation_id));
+                token = intent.getStringExtra(getString(R.string.key_token));
+                requestNoBody(serverPath, method, token);
+                break;
+            case LOAD_BATCH:
+                // Initiates loading batch
+                method = getString(R.string.server_method_get);
+                serverPath = getString(R.string.server_url_batch) + intent.getStringExtra(getString(R.string.key_batch_id));
                 token = intent.getStringExtra(getString(R.string.key_token));
                 requestNoBody(serverPath, method, token);
                 break;
@@ -85,6 +94,8 @@ public class ServerConnectionService extends IntentService {
         InputStream inputStream = null;
         BufferedReader reader = null;
 
+        Log.d(LOG_TAG, serverPath);
+
         try {
             // Create the connection
             URL url = new URL(serverURL);
@@ -107,18 +118,31 @@ public class ServerConnectionService extends IntentService {
             outputStream.flush();
             outputStream.close();
 
-            Log.d(LOG_TAG, "Request with no body");
+            Log.d(LOG_TAG, "Request with body");
             Log.d(LOG_TAG, "Token: " + token);
+
+            // This try/catch is needed because when the server sends 401 (Unauthorized) it does not give a WWW-Authenticate header
+            // and "java.io.IOException : No authentication challenges found" is thrown
+            // So try to get the response code if the code is 401 on the first try there is going to be IOException
+            // After that the connection will have the correct internal state.
+            try {
+                urlConnection.getResponseCode();
+            } catch (IOException e) {
+                // DO NOTHING
+            }
+
             Log.d(LOG_TAG, "Response code: " + urlConnection.getResponseCode());
 
             // Read response
-            if (urlConnection.getResponseCode() == 400) {
+            if (urlConnection.getResponseCode() == 401 || urlConnection.getResponseCode() == 404 || urlConnection.getResponseCode() == 409) {
                 inputStream = urlConnection.getErrorStream();
-            } if (urlConnection.getResponseCode() == 404) {
-                throw new RuntimeException("Възникна проблем със заявката");
-            } else {
+            } else if (urlConnection.getResponseCode() >= 200 && urlConnection.getResponseCode() <= 299) {
                 inputStream = urlConnection.getInputStream();
+            } else {
+                throw new RuntimeException(getString(R.string.massage_server_failed));
             }
+
+            Log.d(LOG_TAG, "Stream ready");
 
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
@@ -172,6 +196,8 @@ public class ServerConnectionService extends IntentService {
         InputStream inputStream = null;
         BufferedReader reader = null;
 
+        Log.d(LOG_TAG, serverPath);
+
         try {
             // Create the connection
             URL url = new URL(serverURL);
@@ -185,16 +211,29 @@ public class ServerConnectionService extends IntentService {
 
             Log.d(LOG_TAG, "Request with no body");
             Log.d(LOG_TAG, "Token: " + token);
+
+            // This try/catch is needed because when the server sends 401 (Unauthorized) it does not give a WWW-Authenticate header
+            // and "java.io.IOException : No authentication challenges found" is thrown
+            // So try to get the response code if the code is 401 on the first try there is going to be IOException
+            // After that the connection will have the correct internal state.
+            try {
+                urlConnection.getResponseCode();
+            } catch (IOException e) {
+                // DO NOTHING
+            }
+
             Log.d(LOG_TAG, "Response code: " + urlConnection.getResponseCode());
 
             // Read response
-            if (urlConnection.getResponseCode() == 400) {
+            if (urlConnection.getResponseCode() == 401 || urlConnection.getResponseCode() == 404 || urlConnection.getResponseCode() == 409) {
                 inputStream = urlConnection.getErrorStream();
-            } if (urlConnection.getResponseCode() == 404) {
-                throw new RuntimeException("Възникна проблем със заявката");
-            } else {
+            } else if (urlConnection.getResponseCode() >= 200 && urlConnection.getResponseCode() <= 299) {
                 inputStream = urlConnection.getInputStream();
+            } else {
+                throw new RuntimeException(getString(R.string.massage_server_failed));
             }
+
+            Log.d(LOG_TAG, "Stream ready");
 
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {

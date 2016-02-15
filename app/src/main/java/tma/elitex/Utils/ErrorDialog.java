@@ -15,11 +15,16 @@ import tma.elitex.R;
  */
 public class ErrorDialog extends Dialog implements View.OnClickListener{
 
+    private TextView mMassage;
     private String mMassageText;
+
+    public ErrorDialog(Context context) {
+        super(context);
+    }
 
     public ErrorDialog(Context context, String massage) {
         super(context);
-        this.mMassageText = massage;
+        mMassageText = massage;
     }
 
     @Override
@@ -28,10 +33,21 @@ public class ErrorDialog extends Dialog implements View.OnClickListener{
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_error);
 
-
-        TextView massage = (TextView) findViewById(R.id.dialog_error_text);
-        massage.setText(mMassageText);
+        mMassage = (TextView) findViewById(R.id.dialog_error_text);
         findViewById(R.id.dialog_error_button).setOnClickListener(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mMassage.setText(mMassageText);
+    }
+
+    /**
+     * Sets the dialog massage
+     */
+    public void setMassageText (String massage){
+        mMassageText = massage;
     }
 
     @Override

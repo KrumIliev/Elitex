@@ -5,6 +5,7 @@
     <string name="server_url_login">api/tma/login</string>
     <string name="server_url_token">api/tma/user</string>
     <string name="server_url_operation">api/tma/processes/</string>
+    <string name="server_url_batch">api/tma/batches/</string>
 
     <!-- Server headers -->
     <string name="server_content_type">Content-Type</string>
@@ -19,7 +20,8 @@
     <string name="server_method_patch">PATCH</string>
     <string name="server_method_del">DEL</string>
 
-    <!-- Server params -->
+    <!-- Server params and json keys -->
+    <string name="key_error">errors</string>
     <string name="key_request">request</string>
     <string name="key_listener">listener</string>
     <string name="key_user_name">user_name</string>
@@ -34,9 +36,18 @@
     <string name="key_department_kind">kind</string>
     <string name="key_roles">roles</string>
     <string name="key_operation_id">operation_id</string>
+    <string name="key_batch_id">batch_id</string>
     <string name="key_serial_number">serial_number</string>
     <string name="key_aligned_time">aligned_time</string>
     <string name="key_order">order</string>
     <string name="key_machine_type">machine_type</string>
+    <string name="key_order_id">order_id</string>
+    <string name="key_number">number</string>
+    <string name="key_made_pieces">made_pieces</string>
+    <string name="key_remaining_pieces">remaining_pieces</string>
+    <string name="key_features">features</string>
+    <string name="key_distribution">distribution</string>
+    <string name="key_size">size</string>
+    <string name="key_color">color</string>
 
 </resources>
