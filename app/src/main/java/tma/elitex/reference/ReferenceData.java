@@ -1,5 +1,9 @@
 package tma.elitex.reference;
 
+import android.content.Context;
+
+import tma.elitex.R;
+
 /**
  * Object for holding reference data returned from the server
  *
@@ -19,7 +23,11 @@ public class ReferenceData {
         this.mPieces = mPieces;
     }
 
-    public static ReferenceData getTitles () {
-        return new ReferenceData("Модел", "Опрация", "Партида", "бр.");
+    public static ReferenceData getTitles(Context context) {
+        return new ReferenceData(
+                context.getString(R.string.title_model),
+                context.getString(R.string.title_operation),
+                context.getString(R.string.title_batch),
+                context.getString(R.string.title_pieces));
     }
 }

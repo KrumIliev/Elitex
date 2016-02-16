@@ -26,11 +26,12 @@
     <string name="massage_batch_failed">Възникна проблем с взимато на партидата.</string>
     <string name="massage_barcode_failed">Възникна проблем с разчитането на баркода.</string>
     <string name="massage_qr_code_failed">Възникна проблем с разчитането на QR кода.</string>
-    <string name="title_batch_number">Номер: </string>
-    <string name="title_batch_count">Брой: </string>
-    <string name="title_batch_size">Размер: </string>
-    <string name="title_batch_colour">Цвят: </string>
-    <string name="title_machine">Машина: </string>
+    <string name="title_batch_number">Номер:\u0020</string>
+    <string name="title_batch_count">Брой:\u0020</string>
+    <string name="title_batch_size">Размер:\u0020</string>
+    <string name="title_batch_colour">Цвят:\u0020</string>
+    <string name="title_machine">Машина:\u0020</string>
+    <string name="menu_reference">Справки</string>
 
     <!-- Work Activity strings -->
     <string name="button_pause">Почивка</string>
@@ -40,9 +41,14 @@
     <string name="confirm_hint">Въведи изработени бройки</string>
     <string name="massage_count">Моля въведете изработените от вас бройки преди да приключите.</string>
 
+    <!-- Reference Activity strings -->
+    <string name="button_date">Избери дата</string>
+    <string name="massage_no_reports">Няма информация. Моля изберете друга дата.</string>
+    <string name="total">Общо:\u0020</string>
+    <string name="title_model">Модел</string>
+    <string name="title_pieces">Бр.</string>
+
     <!-- Other strings -->
     <string name="loading">Моля изчакайте!</string>
-    <string name="menu_reference">Справки</string>
-    <string name="button_date">Избери дата</string>
 
 </resources>

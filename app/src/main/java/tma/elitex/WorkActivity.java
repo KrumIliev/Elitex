@@ -16,7 +16,7 @@ import android.widget.TextView;
 import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
 import tma.elitex.utils.ElitexData;
-import tma.elitex.utils.ErrorDialog;
+import tma.elitex.utils.MassageDialog;
 import tma.elitex.utils.FeaturesDialog;
 import tma.elitex.utils.OperationAndBatch;
 
@@ -173,7 +173,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     private void sendWorkDataAndFinnish () {
         String data = mWorkCount.getText().toString();
         if (data.isEmpty()) {
-            new ErrorDialog(this, getString(R.string.massage_count)).show();
+            new MassageDialog(this, getString(R.string.massage_count)).show();
             return;
         }
 

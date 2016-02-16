@@ -1,6 +1,5 @@
 package tma.elitex;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -23,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import tma.elitex.utils.ElitexData;
-import tma.elitex.utils.ErrorDialog;
+import tma.elitex.utils.MassageDialog;
 import tma.elitex.utils.LoadingDialog;
 import tma.elitex.utils.User;
 import tma.elitex.server.ServerConnectionService;
@@ -44,7 +42,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     private EditText mPasswordEditText; // Password input field
 
     private LoadingDialog mLoading;
-    private ErrorDialog mErrorDialog;
+    private MassageDialog mMassageDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +62,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.sign_in_button_qr).setOnClickListener(this);
 
         mLoading = new LoadingDialog(this);
-        mErrorDialog = new ErrorDialog(this);
+        mMassageDialog = new MassageDialog(this);
 
         // Hides soft keyboard on initial start
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -180,16 +178,16 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             } else if (json.has(getString(R.string.key_error))) {
                 // There was a problem with the request get and show massage
                 JSONArray errorMassages = json.getJSONArray(getString(R.string.key_error));
-                mErrorDialog.setMassageText(errorMassages.get(0).toString());
-                mErrorDialog.show();
+                mMassageDialog.setMassageText(errorMassages.get(0).toString());
+                mMassageDialog.show();
 
             } else {
                 // The server has returned unknown
                 throw new JSONException("Unknown server result");
             }
         } catch (JSONException e) {
-            mErrorDialog.setMassageText(getString(R.string.massage_server_failed));
-            mErrorDialog.show();
+            mMassageDialog.setMassageText(getString(R.string.massage_server_failed));
+            mMassageDialog.show();
             // The server has returned unknown result log it
             Log.d(LOG_TAG, e.toString());
         }
@@ -198,8 +196,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void requestFailed(String error) {
         mLoading.dismiss();
-        mErrorDialog.setMassageText(error);
-        mErrorDialog.show();
+        mMassageDialog.setMassageText(error);
+        mMassageDialog.show();
     }
 
     /**

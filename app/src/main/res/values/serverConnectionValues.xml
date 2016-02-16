@@ -6,6 +6,7 @@
     <string name="server_url_token">api/tma/user</string>
     <string name="server_url_operation">api/tma/processes/</string>
     <string name="server_url_batch">api/tma/batches/</string>
+    <string name="server_url_reports">api/tma/earnings_report/</string>
 
     <!-- Server headers -->
     <string name="server_content_type">Content-Type</string>
@@ -49,5 +50,11 @@
     <string name="key_distribution">distribution</string>
     <string name="key_size">size</string>
     <string name="key_color">color</string>
+    <string name="key_report_date">report_date</string>
+    <string name="key_earnings">earnings</string>
+    <string name="key_model">model</string>
+    <string name="key_process">process</string>
+    <string name="key_batch">batch</string>
+    <string name="key_pieces">pieces</string>
 
 </resources>

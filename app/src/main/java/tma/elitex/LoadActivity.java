@@ -24,7 +24,7 @@ import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
 import tma.elitex.utils.ElitexData;
-import tma.elitex.utils.ErrorDialog;
+import tma.elitex.utils.MassageDialog;
 import tma.elitex.utils.FeaturesDialog;
 import tma.elitex.utils.LoadingDialog;
 import tma.elitex.utils.OperationAndBatch;
@@ -65,7 +65,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
     private OperationAndBatch mOperationAndBatch; // Object for storing the result data from server requests
 
     private LoadingDialog mLoading;
-    private ErrorDialog mErrorDialog;
+    private MassageDialog mMassageDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +106,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         mCancel.setOnClickListener(this);
 
         mLoading = new LoadingDialog(this);
-        mErrorDialog = new ErrorDialog(this);
+        mMassageDialog = new MassageDialog(this);
     }
 
     @Override
@@ -135,7 +135,6 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
                     Intent intent = new Intent(this, WorkActivity.class);
                     startActivity(intent);
                     // TODO start working process on server
-                    // TODO start working activity
                 } else {
                     startLoading();
                 }
@@ -184,14 +183,14 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
             if (result.getContents() == null) {
                 if (mLoadingOperation) {
                     resetView();
-                    mErrorDialog.setMassageText(getString(R.string.massage_barcode_failed));
-                    mErrorDialog.show();
+                    mMassageDialog.setMassageText(getString(R.string.massage_barcode_failed));
+                    mMassageDialog.show();
                 }
 
                 if (mLoadingBatch) {
                     resetViewBatch();
-                    mErrorDialog.setMassageText(getString(R.string.massage_qr_code_failed));
-                    mErrorDialog.show();
+                    mMassageDialog.setMassageText(getString(R.string.massage_qr_code_failed));
+                    mMassageDialog.show();
                 }
 
             } else {
@@ -243,9 +242,9 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
             mLoading.show();
 
         } catch (JSONException e) {
-            //TODO hide loading dialog
-            mErrorDialog.setMassageText(getString(R.string.massage_batch_failed));
-            mErrorDialog.show();
+            if (mLoading.isShowing()) mLoading.dismiss();
+            mMassageDialog.setMassageText(getString(R.string.massage_batch_failed));
+            mMassageDialog.show();
             Log.d(LOG_TAG, e.toString());
         }
     }
@@ -270,23 +269,22 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
 
             if (mLoadingOperation) {
                 resetView();
-                mErrorDialog.setMassageText(getString(R.string.massage_operation_failed));
-                mErrorDialog.show();
+                mMassageDialog.setMassageText(getString(R.string.massage_operation_failed));
+                mMassageDialog.show();
             }
             if (mLoadingBatch) {
                 resetViewBatch();
-                mErrorDialog.setMassageText(getString(R.string.massage_batch_failed));
-                mErrorDialog.show();
+                mMassageDialog.setMassageText(getString(R.string.massage_batch_failed));
+                mMassageDialog.show();
             }
-            return;
         }
     }
 
     @Override
     public void requestFailed(String error) {
         mLoading.dismiss();
-        mErrorDialog.setMassageText(error);
-        mErrorDialog.show();
+        mMassageDialog.setMassageText(error);
+        mMassageDialog.show();
 
         if (mLoadingOperation) resetView();
         if (mLoadingBatch) resetViewBatch();

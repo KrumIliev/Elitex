@@ -74,6 +74,12 @@ public class ServerConnectionService extends IntentService {
                 token = intent.getStringExtra(getString(R.string.key_token));
                 requestNoBody(serverPath, method, token);
                 break;
+            case REPORTS:
+                // Initiates loading reports for selected date
+                method = getString(R.string.server_method_get);
+                serverPath = getString(R.string.server_url_reports) + intent.getStringExtra(getString(R.string.key_report_date));
+                token = intent.getStringExtra(getString(R.string.key_token));
+                requestNoBody(serverPath, method, token);
         }
     }
 
