@@ -22,12 +22,4 @@ public class ReferenceData {
         this.mBatch = mBatch;
         this.mPieces = mPieces;
     }
-
-    public static ReferenceData getTitles(Context context) {
-        return new ReferenceData(
-                context.getString(R.string.title_model),
-                context.getString(R.string.title_operation),
-                context.getString(R.string.title_batch),
-                context.getString(R.string.title_pieces));
-    }
 }

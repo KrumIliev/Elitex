@@ -32,6 +32,7 @@
     <string name="title_batch_colour">Цвят:\u0020</string>
     <string name="title_machine">Машина:\u0020</string>
     <string name="menu_reference">Справки</string>
+    <string name="menu_exit">Изход</string>
 
     <!-- Work Activity strings -->
     <string name="button_pause">Почивка</string>
@@ -44,11 +45,15 @@
     <!-- Reference Activity strings -->
     <string name="button_date">Избери дата</string>
     <string name="massage_no_reports">Няма информация. Моля изберете друга дата.</string>
-    <string name="total">Общо:\u0020</string>
+    <string name="total">Общо за дата \u0020</string>
     <string name="title_model">Модел</string>
     <string name="title_pieces">Бр.</string>
 
     <!-- Other strings -->
     <string name="loading">Моля изчакайте!</string>
+    <string name="massage_exit">Желаете ли да приключите работа?</string>
+    <string name="button_yes">Да</string>
+    <string name="button_no">Не</string>
+    <string name="button_logout">Смени потребителя</string>
 
 </resources>

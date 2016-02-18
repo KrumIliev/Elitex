@@ -49,6 +49,14 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        // TODO ONLY FOR TESTING ------------------------------------------------------------------>
+        String token = new ElitexData(this).getAccessToken();
+        if (token != null && !token.isEmpty()) {
+            Intent intent = new Intent(this, LoadActivity.class);
+            startActivity(intent);
+        }
+        // <----------------------------------------------------------------------------------------
+
         // Initializing server communication
         mResultReceiver = new ServerResultReceiver(new Handler());
         mResultReceiver.serListener(this);

@@ -6,4 +6,10 @@
         android:orderInCategory="100"
         android:title="@string/menu_reference"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_exit"
+        android:orderInCategory="100"
+        android:title="@string/menu_exit"
+        app:showAsAction="ifRoom" />
 </menu>

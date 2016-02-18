@@ -24,6 +24,8 @@ import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
 import tma.elitex.utils.ElitexData;
+import tma.elitex.utils.ExitDialog;
+import tma.elitex.utils.ExitListener;
 import tma.elitex.utils.MassageDialog;
 import tma.elitex.utils.FeaturesDialog;
 import tma.elitex.utils.LoadingDialog;
@@ -32,7 +34,7 @@ import tma.elitex.utils.OperationAndBatch;
 /**
  * Created by Krum Iliev.
  */
-public class LoadActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener {
+public class LoadActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener, ExitListener {
 
     private final String LOG_TAG = LoadActivity.class.getSimpleName();
 
@@ -120,6 +122,9 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         switch (item.getItemId()) {
             case R.id.action_reference:
                 startActivity(new Intent(this, ReferenceActivity.class));
+                return true;
+            case R.id.action_exit:
+                new ExitDialog(this, this).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -419,5 +424,17 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
             return operationID.substring(3);
         }
         return operationID;
+    }
+
+    @Override
+    public void logout() {
+        mElitexData.setAccessToken("");
+        startActivity(new Intent(this, SignInActivity.class));
+    }
+
+    @Override
+    public void exitApp() {
+        mElitexData.setAccessToken("");
+        finishAffinity();
     }
 }

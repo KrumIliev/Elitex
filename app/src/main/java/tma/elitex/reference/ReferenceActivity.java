@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +37,9 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
 
     private ReferenceListAdapter mAdapter;
     private ArrayList<ReferenceData> mListData;
+    private TextView mTotalTitle;
+    private TextView mTotalValue;
+    private String mDateSelected;
 
     private LoadingDialog mLoading;
     private MassageDialog mMassageDialog;
@@ -64,6 +68,9 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
         mAdapter = new ReferenceListAdapter(this, mListData);
         list.setAdapter(mAdapter);
 
+        mTotalTitle = (TextView) findViewById(R.id.ref_total_title);
+        mTotalValue = (TextView) findViewById(R.id.ref_total_value);
+
         // Show date select on initial start
         new SelectDateDialog(this, this).show();
     }
@@ -82,16 +89,29 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onDateSet(int year, int month, int day) {
-        // Creates server url date string in format YYYY-MM-DD
-        String date = year + "-" + month + "-" + day;
+        mDateSelected = formatDate(year, month, day);
+        Log.d(LOG_TAG, mDateSelected);
 
         Intent intent = new Intent(this, ServerConnectionService.class);
         intent.putExtra(getString(R.string.key_listener), mResultReceiver);
         intent.putExtra(getString(R.string.key_request), ServerRequests.REPORTS);
         intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
-        intent.putExtra(getString(R.string.key_report_date), date);
+        intent.putExtra(getString(R.string.key_report_date), mDateSelected);
         startService(intent);
         mLoading.show();
+    }
+
+    /**
+     * Creates server url date string in format YYYY-MM-DD
+     */
+    private String formatDate(int year, int month, int day) {
+        String strMonth, strDay;
+        month++; // The date picker returns months starting from 0 for some reason. So add 1 to get the right value
+        if (month < 10) strMonth = "0" + month;
+        else strMonth = String.valueOf(month);
+        if (day < 10) strDay = "0" + day;
+        else strDay = String.valueOf(day);
+        return year + "-" + strMonth + "-" + strDay;
     }
 
     @Override
@@ -105,7 +125,6 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
             if (json.length() > 0) {
 
                 mListData.clear(); // Remove all previous information
-                mListData.add(ReferenceData.getTitles(this)); // Add titles this needs to go first before adding data
 
                 // Add the data returned from the server
                 for (int i = 0; i < json.length(); i++) {
@@ -118,12 +137,7 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
                     ));
                 }
 
-                int finalCount = 0;
-                for (int i = 1; i < mListData.size(); i++) {
-                    finalCount += Integer.valueOf(mListData.get(i).mPieces);
-                }
-
-                mListData.add(new ReferenceData("", "", getString(R.string.total), String.valueOf(finalCount)));
+                setTotal();
                 mAdapter.notifyDataSetChanged();
 
             } else {
@@ -138,6 +152,20 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
             mMassageDialog.show();
             Log.d(LOG_TAG, e.toString());
         }
+    }
+
+    /**
+     * Sets the total values
+     */
+    private void setTotal() {
+        int finalCount = 0;
+        for (int i = 0; i < mListData.size(); i++) {
+            finalCount += Integer.valueOf(mListData.get(i).mPieces);
+        }
+
+        mDateSelected = mDateSelected.replaceAll("-", "/"); // Formats the date from YYYY-MM-DD to YYYY/MM/DD for consistency
+        mTotalTitle.setText(getString(R.string.total) + mDateSelected + " :");
+        mTotalValue.setText(String.valueOf(finalCount));
     }
 
     @Override
