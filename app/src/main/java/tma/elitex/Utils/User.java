@@ -15,13 +15,15 @@ public class User {
     public String mDepartmentName;
     public String mDepartmentKind;
     public Set<String> mRoles;
+    public boolean mKeepLogged;
 
-    public User(int userId, String userName, int departmentId, String departmentName, String departmentKind, Set<String> roles) {
+    public User(int userId, String userName, int departmentId, String departmentName, String departmentKind, Set<String> roles, boolean keepLogged) {
         this.mUserId = userId;
         this.mUserName = userName;
         this.mDepartmentId = departmentId;
         this.mDepartmentName = departmentName;
         this.mDepartmentKind = departmentKind;
         this.mRoles = roles;
+        this.mKeepLogged = keepLogged;
     }
 }

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ import tma.elitex.utils.MassageDialog;
 import tma.elitex.utils.FeaturesDialog;
 import tma.elitex.utils.LoadingDialog;
 import tma.elitex.utils.OperationAndBatch;
+import tma.elitex.utils.User;
 
 /**
  * Created by Krum Iliev.
@@ -73,6 +75,13 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load);
+
+        // Dims the navigation buttons
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+        // Keeps the screen on while the app is running
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Initializing server communication
         mResultReceiver = new ServerResultReceiver(new Handler());
@@ -124,7 +133,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, ReferenceActivity.class));
                 return true;
             case R.id.action_exit:
-                new ExitDialog(this, this).show();
+                new ExitDialog(this, this, true).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -286,9 +295,9 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void requestFailed(String error) {
+    public void requestFailed() {
         mLoading.dismiss();
-        mMassageDialog.setMassageText(error);
+        mMassageDialog.setMassageText(getString(R.string.massage_server_failed));
         mMassageDialog.show();
 
         if (mLoadingOperation) resetView();
@@ -428,13 +437,24 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void logout() {
-        mElitexData.setAccessToken("");
+        mElitexData.setAccessToken(""); // Remove token
+
+        // Change automatic login to false so the sign in activity behaves properly
+        User user = mElitexData.getUserData();
+        user.mKeepLogged = false;
+        mElitexData.addUserData(user);
+
+        // Start sign in activity
         startActivity(new Intent(this, SignInActivity.class));
     }
 
     @Override
     public void exitApp() {
-        mElitexData.setAccessToken("");
         finishAffinity();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // DO NOTHING
     }
 }

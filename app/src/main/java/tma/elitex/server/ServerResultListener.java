@@ -5,5 +5,5 @@ package tma.elitex.server;
  */
 public interface ServerResultListener {
     void requestReady (String result);
-    void requestFailed (String error);
+    void requestFailed ();
 }

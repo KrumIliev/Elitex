@@ -14,10 +14,12 @@ import tma.elitex.R;
 public class ExitDialog extends Dialog implements View.OnClickListener {
 
     private ExitListener mListener;
+    private boolean mShowChangeUser;
 
-    public ExitDialog(Context context, ExitListener listener) {
+    public ExitDialog(Context context, ExitListener listener, boolean showChangeUser) {
         super(context);
         this.mListener = listener;
+        mShowChangeUser = showChangeUser;
     }
 
     @Override
@@ -28,7 +30,12 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
 
         findViewById(R.id.exit_yes).setOnClickListener(this); // Button yes
         findViewById(R.id.exit_no).setOnClickListener(this); // Button no
-        findViewById(R.id.exit_logout).setOnClickListener(this); // Logout button
+
+        if (mShowChangeUser) { // Logout button
+            View logout = findViewById(R.id.exit_logout);
+            logout.setVisibility(View.VISIBLE);
+            logout.setOnClickListener(this);
+        }
     }
 
     @Override

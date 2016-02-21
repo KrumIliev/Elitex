@@ -11,6 +11,7 @@
     <string name="massage_barcode">Моля центрирайте кода в рамката на екрана.</string>
     <string name="massage_user">Полето за потребител е празно.</string>
     <string name="massage_password">Полето за парола е празно.</string>
+    <string name="button_keep_logged">Автоматичен вход</string>
 
     <!-- Strings related to loading operation and batch -->
     <string name="massage_operation_barcode">Пригответе баркода с операцията и натиснтене бутона.</string>
@@ -21,7 +22,7 @@
     <string name="title_operation">Операция</string>
     <string name="title_batch">Партида</string>
     <string name="massage_load_failed">Баркода не може да бъде разчетен.</string>
-    <string name="massage_server_failed">Възкникна проблем. Моля опитайте отново.</string>
+    <string name="massage_server_failed">Възкникна проблем. Проверете интернет възката и опитайте отново.</string>
     <string name="massage_operation_failed">Възникна проблем с взимато на операцията.</string>
     <string name="massage_batch_failed">Възникна проблем с взимато на партидата.</string>
     <string name="massage_barcode_failed">Възникна проблем с разчитането на баркода.</string>

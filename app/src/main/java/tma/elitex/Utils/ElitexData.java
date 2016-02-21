@@ -23,6 +23,7 @@ public class ElitexData {
     private final String KEY_ROLES = "user_roles";
     private final String KEY_ACTIONBAR_TITLE = "title";
     private final String KEY_TOKEN = "token";
+    private final String KEY_KEEP_LOGGED = "keep_logged";
 
     // Operation keys
     private final String KEY_OPERATION_ID = "operation_id";
@@ -65,6 +66,7 @@ public class ElitexData {
         dataEditor.putString(KEY_DEPARTMENT_NAME, user.mDepartmentName);
         dataEditor.putString(KEY_DEPARTMENT_KIND, user.mDepartmentKind);
         dataEditor.putStringSet(KEY_ROLES, user.mRoles);
+        dataEditor.putBoolean(KEY_KEEP_LOGGED, user.mKeepLogged);
 
         //Create action bar title
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -88,7 +90,8 @@ public class ElitexData {
                 mData.getInt(KEY_DEPARTMENT_ID, 0),
                 mData.getString(KEY_DEPARTMENT_NAME, null),
                 mData.getString(KEY_DEPARTMENT_KIND, null),
-                mData.getStringSet(KEY_ROLES, null)
+                mData.getStringSet(KEY_ROLES, null),
+                mData.getBoolean(KEY_KEEP_LOGGED, false)
         );
     }
 

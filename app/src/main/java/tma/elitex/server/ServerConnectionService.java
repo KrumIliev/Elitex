@@ -108,6 +108,7 @@ public class ServerConnectionService extends IntentService {
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);
+            urlConnection.setConnectTimeout(60000);
 
             // Add request headers
             urlConnection.setRequestMethod(method);
@@ -208,6 +209,9 @@ public class ServerConnectionService extends IntentService {
             // Create the connection
             URL url = new URL(serverURL);
             urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setDoOutput(true);
+            urlConnection.setDoInput(true);
+            urlConnection.setConnectTimeout(60000);
 
             // Add request headers
             urlConnection.setRequestMethod(method);

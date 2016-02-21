@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,6 +52,13 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_work);
+
+        // Dims the navigation buttons
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+        // Keeps the screen on while the app is running
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Initializing server communication
         mResultReceiver = new ServerResultReceiver(new Handler());
@@ -190,7 +198,12 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void requestFailed(String error) {
+    public void requestFailed() {
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        // DO NOTHING
     }
 }

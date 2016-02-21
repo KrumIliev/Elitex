@@ -5,8 +5,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -20,7 +23,10 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Set;
 
+import tma.elitex.reference.ReferenceActivity;
 import tma.elitex.utils.ElitexData;
+import tma.elitex.utils.ExitDialog;
+import tma.elitex.utils.ExitListener;
 import tma.elitex.utils.MassageDialog;
 import tma.elitex.utils.LoadingDialog;
 import tma.elitex.utils.User;
@@ -32,14 +38,16 @@ import tma.elitex.server.ServerResultReceiver;
 /**
  * Created by Krum Iliev.
  */
-public class SignInActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener {
+public class SignInActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener, ExitListener {
 
     private final String LOG_TAG = SignInActivity.class.getSimpleName();
 
     private ServerResultReceiver mResultReceiver; // Server service communication
+    private ElitexData mElitexData; // Stored data access
 
     private EditText mUserEditText; // User name input field
     private EditText mPasswordEditText; // Password input field
+    private CheckBox mKeepLogged; // Checkbox if the user wants to automatically log in on the next app start
 
     private LoadingDialog mLoading;
     private MassageDialog mMassageDialog;
@@ -49,13 +57,19 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        // TODO ONLY FOR TESTING ------------------------------------------------------------------>
-        String token = new ElitexData(this).getAccessToken();
-        if (token != null && !token.isEmpty()) {
+        // Dims the navigation buttons
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+        // Keeps the screen on while the app is running
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // Checks if the user has checked keep logged on his previous login
+        mElitexData = new ElitexData(this);
+        if (mElitexData.getUserData().mKeepLogged) {
             Intent intent = new Intent(this, LoadActivity.class);
             startActivity(intent);
         }
-        // <----------------------------------------------------------------------------------------
 
         // Initializing server communication
         mResultReceiver = new ServerResultReceiver(new Handler());
@@ -64,6 +78,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         // Initializing input
         mUserEditText = (EditText) findViewById(R.id.sign_in_user);
         mPasswordEditText = (EditText) findViewById(R.id.sign_in_password);
+        mKeepLogged = (CheckBox) findViewById(R.id.sign_in_keep_logged);
 
         // Initializing buttons
         findViewById(R.id.sign_in_button).setOnClickListener(this);
@@ -74,6 +89,23 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
         // Hides soft keyboard on initial start
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sign_in, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_exit:
+                new ExitDialog(this, this, false).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /**
@@ -202,9 +234,9 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
-    public void requestFailed(String error) {
+    public void requestFailed() {
         mLoading.dismiss();
-        mMassageDialog.setMassageText(error);
+        mMassageDialog.setMassageText(getString(R.string.massage_server_failed));
         mMassageDialog.show();
     }
 
@@ -229,9 +261,25 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 department.getInt(getString(R.string.key_department_id)),
                 department.getString(getString(R.string.key_department_name)),
                 department.getString(getString(R.string.key_department_kind)),
-                userRoles
+                userRoles,
+                mKeepLogged.isChecked()
         );
 
         new ElitexData(this).addUserData(user);
+    }
+
+    @Override
+    public void exitApp() {
+        finishAffinity();
+    }
+
+    @Override
+    public void logout() {
+        // DO NOTHING this is the login screen
+    }
+
+    @Override
+    public void onBackPressed() {
+        // DO NOTHING
     }
 }
