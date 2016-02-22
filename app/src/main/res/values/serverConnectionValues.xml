@@ -7,6 +7,7 @@
     <string name="server_url_operation">api/tma/processes/</string>
     <string name="server_url_batch">api/tma/batches/</string>
     <string name="server_url_reports">api/tma/earnings_report/</string>
+    <string name="server_url_start_work">api/tma/earnings</string>
 
     <!-- Server headers -->
     <string name="server_content_type">Content-Type</string>
@@ -38,6 +39,7 @@
     <string name="key_roles">roles</string>
     <string name="key_operation_id">operation_id</string>
     <string name="key_batch_id">batch_id</string>
+    <string name="key_process_id">process_id</string>
     <string name="key_serial_number">serial_number</string>
     <string name="key_aligned_time">aligned_time</string>
     <string name="key_order">order</string>
@@ -56,5 +58,7 @@
     <string name="key_process">process</string>
     <string name="key_batch">batch</string>
     <string name="key_pieces">pieces</string>
+    <string name="key_earning">earning</string>
+    <string name="key_start_date">created_at</string>
 
 </resources>

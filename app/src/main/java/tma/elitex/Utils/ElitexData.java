@@ -45,6 +45,11 @@ public class ElitexData {
     private final String KEY_MADE = "made";
     private final String KEY_REMAINING = "remaining";
 
+    // Work data keys
+    private final String KEY_WORK_ID = "work_id";
+    private final String KEY_PIECES = "pieces";
+    private final String KEY_START_DATE = "start_date";
+
     private final String PREFS_NAME = "elitexPrefsFile"; // Preference file name
     private SharedPreferences mData;
 
@@ -132,6 +137,11 @@ public class ElitexData {
         dataEditor.putInt(KEY_REMAINING, operationAndBatch.mRemaining);
         dataEditor.putString(KEY_SIZE, operationAndBatch.mSize);
 
+        // Add work data
+        dataEditor.putInt(KEY_WORK_ID, operationAndBatch.mWorkId);
+        dataEditor.putInt(KEY_PIECES, operationAndBatch.mNeededPieces);
+        dataEditor.putString(KEY_START_DATE, operationAndBatch.mStartDate);
+
         // Save all changes
         dataEditor.apply();
     }
@@ -162,6 +172,12 @@ public class ElitexData {
                 mData.getInt(KEY_MADE, 0),
                 mData.getInt(KEY_REMAINING, 0),
                 mData.getString(KEY_SIZE, null)
+        );
+
+        operationAndBatch.setWorkData(
+                mData.getInt(KEY_WORK_ID, 0),
+                mData.getInt(KEY_PIECES, 0),
+                mData.getString(KEY_START_DATE, null)
         );
 
         return operationAndBatch;

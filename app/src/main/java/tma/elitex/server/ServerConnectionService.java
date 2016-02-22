@@ -24,7 +24,7 @@ import tma.elitex.R;
  * This class is used to communicate with the server api.
  * requestWithBody and requestNoBody are the main communication methods.
  * createBody... methods are for creating request bodies.
- *
+ * <p/>
  * Created by Krum Iliev.
  */
 public class ServerConnectionService extends IntentService {
@@ -45,41 +45,56 @@ public class ServerConnectionService extends IntentService {
 
         String body, method, serverPath, token = null;
 
-        switch ((ServerRequests) intent.getSerializableExtra(getString(R.string.key_request))) {
-            case LOGIN_USER:
-                // Initiates user login via username and password
-                body = createBodyUserLogin(intent);
-                method = getString(R.string.server_method_post);
-                serverPath = getString(R.string.server_url_login);
-                requestWithBody(serverPath, method, token, body);
-                break;
-            case LOGIN_TOKEN:
-                // Initiates user login via access token
-                method = getString(R.string.server_method_get);
-                serverPath = getString(R.string.server_url_token);
-                token = intent.getStringExtra(getString(R.string.key_token));
-                requestNoBody(serverPath, method, token);
-                break;
-            case LOAD_OPERATION:
-                // Initiates loading operation
-                method = getString(R.string.server_method_get);
-                serverPath = getString(R.string.server_url_operation) + intent.getStringExtra(getString(R.string.key_operation_id));
-                token = intent.getStringExtra(getString(R.string.key_token));
-                requestNoBody(serverPath, method, token);
-                break;
-            case LOAD_BATCH:
-                // Initiates loading batch
-                method = getString(R.string.server_method_get);
-                serverPath = getString(R.string.server_url_batch) + intent.getStringExtra(getString(R.string.key_batch_id));
-                token = intent.getStringExtra(getString(R.string.key_token));
-                requestNoBody(serverPath, method, token);
-                break;
-            case REPORTS:
-                // Initiates loading reports for selected date
-                method = getString(R.string.server_method_get);
-                serverPath = getString(R.string.server_url_reports) + intent.getStringExtra(getString(R.string.key_report_date));
-                token = intent.getStringExtra(getString(R.string.key_token));
-                requestNoBody(serverPath, method, token);
+        try {
+            switch ((ServerRequests) intent.getSerializableExtra(getString(R.string.key_request))) {
+                case LOGIN_USER:
+                    // Initiates user login via username and password
+                    body = createBodyUserLogin(intent);
+                    method = getString(R.string.server_method_post);
+                    serverPath = getString(R.string.server_url_login);
+                    requestWithBody(serverPath, method, token, body);
+                    break;
+                case LOGIN_TOKEN:
+                    // Initiates user login via access token
+                    method = getString(R.string.server_method_get);
+                    serverPath = getString(R.string.server_url_token);
+                    token = intent.getStringExtra(getString(R.string.key_token));
+                    requestNoBody(serverPath, method, token);
+                    break;
+                case LOAD_OPERATION:
+                    // Initiates loading operation
+                    method = getString(R.string.server_method_get);
+                    serverPath = getString(R.string.server_url_operation) + intent.getStringExtra(getString(R.string.key_operation_id));
+                    token = intent.getStringExtra(getString(R.string.key_token));
+                    requestNoBody(serverPath, method, token);
+                    break;
+                case LOAD_BATCH:
+                    // Initiates loading batch
+                    method = getString(R.string.server_method_get);
+                    serverPath = getString(R.string.server_url_batch) + intent.getStringExtra(getString(R.string.key_batch_id));
+                    token = intent.getStringExtra(getString(R.string.key_token));
+                    requestNoBody(serverPath, method, token);
+                    break;
+                case REPORTS:
+                    // Initiates loading reports for selected date
+                    method = getString(R.string.server_method_get);
+                    serverPath = getString(R.string.server_url_reports) + intent.getStringExtra(getString(R.string.key_report_date));
+                    token = intent.getStringExtra(getString(R.string.key_token));
+                    requestNoBody(serverPath, method, token);
+                case START_WORK:
+                    body = createBodyStartWork(intent);
+                    method = getString(R.string.server_method_post);
+                    serverPath = getString(R.string.server_url_start_work);
+                    token = intent.getStringExtra(getString(R.string.key_token));
+                    Log.d(LOG_TAG, "Work body: " + body);
+                    requestWithBody(serverPath, method, token, body);
+                    break;
+            }
+
+        } catch (Exception e) {
+            Bundle bundle = new Bundle();
+            bundle.putString(ServerResultReceiver.KEY_ERROR, e.toString());
+            mServerListener.send(ServerResultReceiver.RESULT_FAIL, bundle);
         }
     }
 
@@ -88,11 +103,11 @@ public class ServerConnectionService extends IntentService {
      * not be added to the request.
      *
      * @param serverPath Request path after the server URL (example: api/tma/user)
-     * @param method Server request method
-     * @param token Access token
-     * @param body Request body
+     * @param method     Server request method
+     * @param token      Access token
+     * @param body       Request body
      */
-    private void requestWithBody (String serverPath, String method, String token, String body) {
+    private void requestWithBody(String serverPath, String method, String token, String body) {
         String serverURL = getString(R.string.server_url) + serverPath;
 
         HttpURLConnection urlConnection = null;
@@ -141,7 +156,9 @@ public class ServerConnectionService extends IntentService {
             Log.d(LOG_TAG, "Response code: " + urlConnection.getResponseCode());
 
             // Read response
-            if (urlConnection.getResponseCode() == 401 || urlConnection.getResponseCode() == 404 || urlConnection.getResponseCode() == 409) {
+            if (urlConnection.getResponseCode() == 401
+                    || urlConnection.getResponseCode() == 404
+                    || urlConnection.getResponseCode() == 409) {
                 inputStream = urlConnection.getErrorStream();
             } else if (urlConnection.getResponseCode() >= 200 && urlConnection.getResponseCode() <= 299) {
                 inputStream = urlConnection.getInputStream();
@@ -193,10 +210,10 @@ public class ServerConnectionService extends IntentService {
      * Makes request to the server without body.
      *
      * @param serverPath Request path after the server URL (example: api/tma/user)
-     * @param method Server request method
-     * @param token Access token
+     * @param method     Server request method
+     * @param token      Access token
      */
-    private void requestNoBody (String serverPath, String method, String token) {
+    private void requestNoBody(String serverPath, String method, String token) {
         String serverURL = getString(R.string.server_url) + serverPath;
 
         HttpURLConnection urlConnection = null;
@@ -209,8 +226,6 @@ public class ServerConnectionService extends IntentService {
             // Create the connection
             URL url = new URL(serverURL);
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoOutput(true);
-            urlConnection.setDoInput(true);
             urlConnection.setConnectTimeout(60000);
 
             // Add request headers
@@ -235,7 +250,9 @@ public class ServerConnectionService extends IntentService {
             Log.d(LOG_TAG, "Response code: " + urlConnection.getResponseCode());
 
             // Read response
-            if (urlConnection.getResponseCode() == 401 || urlConnection.getResponseCode() == 404 || urlConnection.getResponseCode() == 409) {
+            if (urlConnection.getResponseCode() == 401
+                    || urlConnection.getResponseCode() == 404
+                    || urlConnection.getResponseCode() == 409) {
                 inputStream = urlConnection.getErrorStream();
             } else if (urlConnection.getResponseCode() >= 200 && urlConnection.getResponseCode() <= 299) {
                 inputStream = urlConnection.getInputStream();
@@ -289,19 +306,33 @@ public class ServerConnectionService extends IntentService {
      *
      * @param intent The service intent
      */
-    private String createBodyUserLogin(Intent intent) {
+    private String createBodyUserLogin(Intent intent) throws JSONException {
         String user = intent.getStringExtra(getString(R.string.key_user_name));
         String password = intent.getStringExtra(getString(R.string.key_password));
 
-        try {
-            JSONObject body = new JSONObject();
-            body.put(getString(R.string.key_user_name), user);
-            body.put(getString(R.string.key_password), password);
+        JSONObject body = new JSONObject();
+        body.put(getString(R.string.key_user_name), user);
+        body.put(getString(R.string.key_password), password);
 
-            String result = body.toString();
-            return result;
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+        return body.toString();
+    }
+
+    private String createBodyStartWork(Intent intent) throws JSONException {
+        int orderID = intent.getIntExtra(getString(R.string.key_order_id), 0);
+        int processID = intent.getIntExtra(getString(R.string.key_process_id), 0);
+        int batchID = intent.getIntExtra(getString(R.string.key_batch_id), 0);
+
+        if (orderID == 0 || processID == 0 || batchID == 0) {
+            throw new JSONException("Bad start work params");
         }
+
+        JSONObject body = new JSONObject();
+        JSONObject earning = new JSONObject();
+        earning.put(getString(R.string.key_order_id), orderID);
+        earning.put(getString(R.string.key_process_id), processID);
+        earning.put(getString(R.string.key_batch_id), batchID);
+        body.put(getString(R.string.key_earning), earning);
+
+        return body.toString();
     }
 }

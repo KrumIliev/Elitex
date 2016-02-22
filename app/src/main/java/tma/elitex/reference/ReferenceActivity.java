@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ListView;
@@ -18,18 +20,22 @@ import java.util.ArrayList;
 
 import tma.elitex.LoadActivity;
 import tma.elitex.R;
+import tma.elitex.SignInActivity;
 import tma.elitex.server.ServerConnectionService;
 import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
 import tma.elitex.utils.ElitexData;
+import tma.elitex.utils.ExitDialog;
+import tma.elitex.utils.ExitListener;
 import tma.elitex.utils.MassageDialog;
 import tma.elitex.utils.LoadingDialog;
+import tma.elitex.utils.User;
 
 /**
  * Created by Krum Iliev.
  */
-public class ReferenceActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener, DateListener {
+public class ReferenceActivity extends AppCompatActivity implements View.OnClickListener, ServerResultListener, DateListener, ExitListener {
 
     private final String LOG_TAG = ReferenceActivity.class.getSimpleName();
 
@@ -81,6 +87,23 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
 
         // Show date select on initial start
         new SelectDateDialog(this, this).show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sign_in, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_exit:
+                new ExitDialog(this, this, true).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -181,5 +204,28 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
         mLoading.dismiss();
         mMassageDialog.setMassageText(getString(R.string.massage_server_failed));
         mMassageDialog.show();
+    }
+
+    @Override
+    public void exitApp() {
+        finishAffinity();
+    }
+
+    @Override
+    public void logout() {
+        mElitexData.setAccessToken(""); // Remove token
+
+        // Change automatic login to false so the sign in activity behaves properly
+        User user = mElitexData.getUserData();
+        user.mKeepLogged = false;
+        mElitexData.addUserData(user);
+
+        // Start sign in activity
+        startActivity(new Intent(this, SignInActivity.class));
+    }
+
+    @Override
+    public void onBackPressed() {
+        // DO NOTHING
     }
 }

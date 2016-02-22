@@ -48,6 +48,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
     private boolean mBatchLoaded = false;
     private boolean mLoadingOperation = false;
     private boolean mLoadingBatch = false;
+    private boolean mStartingWork = false;
 
     // Views for holding operation and batch information
     private LinearLayout mOperationContainer;
@@ -145,10 +146,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.info_load_button:
                 if (mBatchLoaded) {
-                    mElitexData.addOperationAndBatch(mOperationAndBatch);
-                    Intent intent = new Intent(this, WorkActivity.class);
-                    startActivity(intent);
-                    // TODO start working process on server
+                    startWork();
                 } else {
                     startLoading();
                 }
@@ -263,6 +261,19 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void startWork () {
+        Intent intent = new Intent(this, ServerConnectionService.class);
+        intent.putExtra(getString(R.string.key_listener), mResultReceiver);
+        intent.putExtra(getString(R.string.key_request), ServerRequests.START_WORK);
+        intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
+        intent.putExtra(getString(R.string.key_order_id), mOperationAndBatch.mOrderId);
+        intent.putExtra(getString(R.string.key_process_id), Integer.valueOf(mOperationAndBatch.mOperationId));
+        intent.putExtra(getString(R.string.key_batch_id), mOperationAndBatch.mBatchId);
+        startService(intent);
+        mStartingWork = true;
+        mLoading.show();
+    }
+
     @Override
     public void requestReady(String result) {
         Log.d(LOG_TAG, result);
@@ -274,6 +285,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
             json = new JSONObject(result);
             if (mLoadingOperation) readOperationFromJson(json);
             if (mLoadingBatch) readBatchFromJson(json);
+            if (mStartingWork) readStartWorkFromJson(json);
 
         } catch (JSONException e) {
             // If there is a error during parsing, log the error, show error massage dialog.
@@ -291,6 +303,11 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
                 mMassageDialog.setMassageText(getString(R.string.massage_batch_failed));
                 mMassageDialog.show();
             }
+            if (mStartingWork) {
+                mStartingWork = false;
+                mMassageDialog.setMassageText(getString(R.string.massage_start_work_failed));
+                mMassageDialog.show();
+            }
         }
     }
 
@@ -302,10 +319,11 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
 
         if (mLoadingOperation) resetView();
         if (mLoadingBatch) resetViewBatch();
+        if (mStartingWork) mStartingWork = false;
     }
 
     /**
-     * Reads the operation data form the server result json and stores it in the
+     * Reads the operation data from the server result json and stores it in the
      * mOperationAndBatch object
      *
      * @throws JSONException If there is a problem the method delegates the exception to the calling method
@@ -349,7 +367,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Reads the batch data form the server result json and stores it in the
+     * Reads the batch data from the server result json and stores it in the
      * mOperationAndBatch object
      *
      * @throws JSONException If there is a problem the method delegates the exception to the calling method
@@ -383,6 +401,25 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         mLoad.setText(getString(R.string.button_load_start));
         mLoadingBatch = false;
         mBatchLoaded = true;
+    }
+
+    /**
+     * Reads work data from the server result json, stores it in the
+     * mOperationAndBatch object and starts the work activity
+     */
+    private void readStartWorkFromJson (JSONObject json) throws JSONException {
+        mOperationAndBatch.setWorkData(
+                json.getInt(getString(R.string.key_id)),
+                json.getInt(getString(R.string.key_pieces)),
+                json.getString(getString(R.string.key_start_date))
+        );
+
+        // Save the data in shared prefs
+        mElitexData.addOperationAndBatch(mOperationAndBatch);
+
+        // Start work activity
+        Intent intent = new Intent(this, WorkActivity.class);
+        startActivity(intent);
     }
 
     /**

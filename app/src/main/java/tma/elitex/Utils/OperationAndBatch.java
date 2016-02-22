@@ -25,6 +25,11 @@ public class OperationAndBatch {
     public int mRemaining;
     public String mSize;
 
+    // Additional information
+    public int mWorkId; // id of the work process to update process state
+    public int mNeededPieces; // how many pieces are needed to complete this operation
+    public String mStartDate; // Date string when work was started in format yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+
     public boolean mHasBatch = false;
 
     public OperationAndBatch(String operationId, String name, int serialNum, double time, int orderId, String orderName, int machineId, String machineName) {
@@ -59,6 +64,12 @@ public class OperationAndBatch {
         this.mSize = size;
 
         mHasBatch = true;
+    }
+
+    public void setWorkData (int workID, int neededPieces, String startDate) {
+        this.mWorkId = workID;
+        this.mNeededPieces = neededPieces;
+        this.mStartDate = startDate;
     }
 
     /**

@@ -52,11 +52,11 @@ public class ServerResultReceiver extends ResultReceiver {
                 mListener.requestReady(resultData.getString(KEY_RESULT));
 
             } else if (resultCode == RESULT_FAIL) {
-                // There was a error log massage
+                // There was a error, log massage
                 mListener.requestFailed();
                 Log.d(LOG_TAG, resultData.getString(KEY_ERROR));
             } else {
-                // There was a error log massage
+                // There was a error, log massage
                 Log.d(LOG_TAG, "Unknown result code: " + resultCode);
             }
         }
