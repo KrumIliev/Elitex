@@ -24,7 +24,7 @@ import tma.elitex.R;
  * This class is used to communicate with the server api.
  * requestWithBody and requestNoBody are the main communication methods.
  * createBody... methods are for creating request bodies.
- * <p/>
+ *
  * Created by Krum Iliev.
  */
 public class ServerConnectionService extends IntentService {

@@ -416,6 +416,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
 
         // Save the data in shared prefs
         mElitexData.addOperationAndBatch(mOperationAndBatch);
+        mElitexData.setTaskRunning(true);
 
         // Start work activity
         Intent intent = new Intent(this, WorkActivity.class);

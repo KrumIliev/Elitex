@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * Class for holding application data in SharedPreferences.
  * It can store the data for one user and one operation.
- *
+ * <p/>
  * Created by Krum Iliev.
  */
 public class ElitexData {
@@ -49,6 +49,8 @@ public class ElitexData {
     private final String KEY_WORK_ID = "work_id";
     private final String KEY_PIECES = "pieces";
     private final String KEY_START_DATE = "start_date";
+    private final String KEY_TASK_RUNNING = "task_running"; // This is used if the application closes without completing the running task
+    private final String KEY_WORK_TIME = "time";
 
     private final String PREFS_NAME = "elitexPrefsFile"; // Preference file name
     private SharedPreferences mData;
@@ -62,7 +64,7 @@ public class ElitexData {
      *
      * @param user user data object
      */
-    public void addUserData (User user) {
+    public void addUserData(User user) {
         //Save user data
         SharedPreferences.Editor dataEditor = mData.edit();
         dataEditor.putInt(KEY_USER_ID, user.mUserId);
@@ -88,7 +90,7 @@ public class ElitexData {
      *
      * @return user data object
      */
-    public User getUserData () {
+    public User getUserData() {
         return new User(
                 mData.getInt(KEY_USER_ID, 0),
                 mData.getString(KEY_USER_NAME, null),
@@ -105,7 +107,7 @@ public class ElitexData {
      *
      * @return action bar title string
      */
-    public String getActionBarTitle () {
+    public String getActionBarTitle() {
         return mData.getString(KEY_ACTIONBAR_TITLE, "");
     }
 
@@ -114,7 +116,7 @@ public class ElitexData {
      *
      * @param operationAndBatch operation and batch data object
      */
-    public void addOperationAndBatch (OperationAndBatch operationAndBatch){
+    public void addOperationAndBatch(OperationAndBatch operationAndBatch) {
         SharedPreferences.Editor dataEditor = mData.edit();
 
         // Add operation
@@ -147,11 +149,11 @@ public class ElitexData {
     }
 
     /**
-     *  Retrieves operation and batch data from Elitex SharedPreferences
+     * Retrieves operation and batch data from Elitex SharedPreferences
      *
-     *  @return operation and batch data object
+     * @return operation and batch data object
      */
-    public OperationAndBatch getOperationAndBatch () {
+    public OperationAndBatch getOperationAndBatch() {
         OperationAndBatch operationAndBatch = new OperationAndBatch(
                 mData.getString(KEY_OPERATION_ID, null),
                 mData.getString(KEY_OPERATION_NAME, null),
@@ -188,7 +190,7 @@ public class ElitexData {
      *
      * @param accessToken server access token
      */
-    public void setAccessToken (String accessToken) {
+    public void setAccessToken(String accessToken) {
         SharedPreferences.Editor dataEditor = mData.edit();
         dataEditor.putString(KEY_TOKEN, accessToken);
         dataEditor.apply();
@@ -197,7 +199,45 @@ public class ElitexData {
     /**
      * @return server access token
      */
-    public String getAccessToken () {
+    public String getAccessToken() {
         return mData.getString(KEY_TOKEN, null);
+    }
+
+    /**
+    * Sets the indicator is there currently running work task
+     * this is necessary if the application is terminated without completing the work task
+     *
+     * @param state is the task starting (true) or finishing (false)
+    */
+    public void setTaskRunning(boolean state) {
+        SharedPreferences.Editor dataEditor = mData.edit();
+        dataEditor.putBoolean(KEY_TASK_RUNNING, state);
+        dataEditor.apply();
+    }
+
+    /**
+     * @return true if the application was terminated without closing the work process
+     * correctly
+     */
+    public boolean isTaskRunning() {
+        return mData.getBoolean(KEY_TASK_RUNNING, false);
+    }
+
+    /**
+     * Sets the time passed while working
+     *
+     * @param time the time passed in milliseconds
+     */
+    public void setWorkTime (long time) {
+        SharedPreferences.Editor dataEditor = mData.edit();
+        dataEditor.putLong(KEY_WORK_TIME, time);
+        dataEditor.commit();
+    }
+
+    /**
+     * @return the time spend on the before been stopped/paused in milliseconds
+     */
+    public long getTimePassed () {
+        return mData.getLong(KEY_WORK_TIME, 0);
     }
 }

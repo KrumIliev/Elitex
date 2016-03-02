@@ -20,20 +20,26 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import tma.elitex.reference.ReferenceActivity;
-import tma.elitex.utils.ElitexData;
-import tma.elitex.utils.ExitDialog;
-import tma.elitex.utils.ExitListener;
-import tma.elitex.utils.MassageDialog;
-import tma.elitex.utils.LoadingDialog;
-import tma.elitex.utils.User;
 import tma.elitex.server.ServerConnectionService;
 import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
+import tma.elitex.utils.ElitexData;
+import tma.elitex.utils.ExitDialog;
+import tma.elitex.utils.ExitListener;
+import tma.elitex.utils.LoadingDialog;
+import tma.elitex.utils.MassageDialog;
+import tma.elitex.utils.User;
 
 /**
  * Created by Krum Iliev.
@@ -64,8 +70,10 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         // Keeps the screen on while the app is running
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // Checks if the user has checked keep logged on his previous login
         mElitexData = new ElitexData(this);
+        checkIfWorkWasComplected();
+
+        // Checks if the user has checked keep logged on his previous login
         if (mElitexData.getUserData().mKeepLogged) {
             Intent intent = new Intent(this, LoadActivity.class);
             startActivity(intent);
@@ -89,6 +97,35 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
         // Hides soft keyboard on initial start
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    /**
+     * Checks if the user closed the application without finishing his working task
+     * if yes checks if the work task was started the same day
+     * and if yes the application goes directly to work screen to continue the task
+     */
+    private void checkIfWorkWasComplected() {
+        try {
+            String token = mElitexData.getAccessToken(); // User access token if its null or empty return to login
+
+            // Check how many days have passed since the task was started
+            // this is necessary because the server automatically closes all work tasks in the evening
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH);
+            Date previousDate = df.parse(mElitexData.getOperationAndBatch().mStartDate);
+            Calendar cal = Calendar.getInstance();
+            Date currentDate = df.parse(df.format(cal.getTime()));
+            long diff = previousDate.getTime() - currentDate.getTime();
+            long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+
+            if (mElitexData.isTaskRunning() && token != null && !token.isEmpty() && days < 1) {
+                Intent intent = new Intent(this, WorkActivity.class);
+                intent.putExtra(getString(R.string.key_time), mElitexData.getTimePassed());
+                startActivity(intent);
+            }
+        } catch (ParseException e) {
+            Log.d(LOG_TAG, e.toString());
+        }
+
     }
 
     @Override

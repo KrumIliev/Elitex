@@ -70,6 +70,13 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
 
         initViews();
 
+        // Checks if there is elapsed time passed via intent. This only happens if the application was
+        // closed without stopping the work process and the login screen is trying to restart the task
+        long time = getIntent().getLongExtra(getString(R.string.key_time), 0);
+        if (time > 0) {
+            mTimeElapsed = time;
+        }
+
         mTimerHandler = new Handler();
         mTimerRunnable = new Runnable() {
             @Override

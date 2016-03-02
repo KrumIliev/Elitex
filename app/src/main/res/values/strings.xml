@@ -43,6 +43,7 @@
     <string name="button_finnish">Завърши</string>
     <string name="confirm_hint">Въведи изработени бройки</string>
     <string name="massage_count">Моля въведете изработените от вас бройки преди да приключите.</string>
+    <string name="key_time">time</string>
 
     <!-- Reference Activity strings -->
     <string name="button_date">Избери дата</string>
