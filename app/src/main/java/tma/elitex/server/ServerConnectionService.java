@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,6 +19,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 import tma.elitex.R;
 
@@ -24,7 +31,7 @@ import tma.elitex.R;
  * This class is used to communicate with the server api.
  * requestWithBody and requestNoBody are the main communication methods.
  * createBody... methods are for creating request bodies.
- *
+ * <p/>
  * Created by Krum Iliev.
  */
 public class ServerConnectionService extends IntentService {
@@ -82,6 +89,7 @@ public class ServerConnectionService extends IntentService {
                     token = intent.getStringExtra(getString(R.string.key_token));
                     requestNoBody(serverPath, method, token);
                 case START_WORK:
+                    // Initiates start work
                     body = createBodyStartWork(intent);
                     method = getString(R.string.server_method_post);
                     serverPath = getString(R.string.server_url_start_work);
@@ -89,9 +97,39 @@ public class ServerConnectionService extends IntentService {
                     Log.d(LOG_TAG, "Work body: " + body);
                     requestWithBody(serverPath, method, token, body);
                     break;
+                case PAUSE_WORK:
+                    // Initiates pause work
+                    body = createBodyPauseResumeWork(getString(R.string.key_pause));
+                    method = getString(R.string.server_method_patch);
+                    serverPath = getString(R.string.server_url_earnings) + intent.getStringExtra(getString(R.string.key_work_id));
+                    token = intent.getStringExtra(getString(R.string.key_token));
+                    Log.d(LOG_TAG, "Work body: " + body);
+                    requestWithBody(serverPath, method, token, body);
+                    break;
+                case RESUME_WORK:
+                    // Initiates resume work
+                    body = createBodyPauseResumeWork(getString(R.string.key_resume));
+                    method = getString(R.string.server_method_patch);
+                    serverPath = getString(R.string.server_url_earnings) + intent.getStringExtra(getString(R.string.key_work_id));
+                    token = intent.getStringExtra(getString(R.string.key_token));
+                    Log.d(LOG_TAG, "Work body: " + body);
+                    requestWithBody(serverPath, method, token, body);
+                    break;
+                case COMPLETE_WORK:
+                    // Initiates complete work
+                    body = createBodyCompleteWork(intent);
+                    method = getString(R.string.server_method_patch);
+                    serverPath = getString(R.string.server_url_earnings) + intent.getStringExtra(getString(R.string.key_work_id));
+                    token = intent.getStringExtra(getString(R.string.key_token));
+                    Log.d(LOG_TAG, "Work body: " + body);
+                    requestWithBody(serverPath, method, token, body);
+                    break;
+
             }
 
         } catch (Exception e) {
+            Crashlytics.logException(e);
+            Log.d(LOG_TAG, e.toString());
             Bundle bundle = new Bundle();
             bundle.putString(ServerResultReceiver.KEY_ERROR, e.toString());
             mServerListener.send(ServerResultReceiver.RESULT_FAIL, bundle);
@@ -126,7 +164,12 @@ public class ServerConnectionService extends IntentService {
             urlConnection.setConnectTimeout(60000);
 
             // Add request headers
-            urlConnection.setRequestMethod(method);
+            if (method.equals(getString(R.string.server_method_patch))) {
+                urlConnection.setRequestProperty("X-HTTP-Method-Override", getString(R.string.server_method_patch));
+                urlConnection.setRequestMethod(getString(R.string.server_method_post));
+            } else {
+                urlConnection.setRequestMethod(method);
+            }
             urlConnection.setRequestProperty(getString(R.string.server_content_type), getString(R.string.server_content_type_value));
             urlConnection.setRequestProperty(getString(R.string.server_accept), getString(R.string.server_accept_value));
             if (token != null && !token.isEmpty()) {
@@ -190,6 +233,7 @@ public class ServerConnectionService extends IntentService {
             mServerListener.send(ServerResultReceiver.RESULT_OK, bundle);
 
         } catch (Exception e) {
+            Crashlytics.logException(e);
             Bundle bundle = new Bundle();
             bundle.putString(ServerResultReceiver.KEY_ERROR, e.toString());
             mServerListener.send(ServerResultReceiver.RESULT_FAIL, bundle);
@@ -201,6 +245,7 @@ public class ServerConnectionService extends IntentService {
                 if (outputStream != null) outputStream.close();
                 if (inputStream != null) inputStream.close();
             } catch (Exception e) {
+                Crashlytics.logException(e);
                 Log.d(LOG_TAG, e.toString());
             }
         }
@@ -229,7 +274,12 @@ public class ServerConnectionService extends IntentService {
             urlConnection.setConnectTimeout(60000);
 
             // Add request headers
-            urlConnection.setRequestMethod(method);
+            if (method.equals(getString(R.string.server_method_patch))) {
+                urlConnection.setRequestProperty("X-HTTP-Method-Override", getString(R.string.server_method_patch));
+                urlConnection.setRequestMethod(getString(R.string.server_method_post));
+            } else {
+                urlConnection.setRequestMethod(method);
+            }
             urlConnection.setRequestProperty(getString(R.string.server_content_type), getString(R.string.server_content_type_value));
             urlConnection.setRequestProperty(getString(R.string.server_accept), getString(R.string.server_accept_value));
             urlConnection.setRequestProperty(getString(R.string.server_authorization), getString(R.string.key_token) + "=" + token);
@@ -286,16 +336,17 @@ public class ServerConnectionService extends IntentService {
             mServerListener.send(ServerResultReceiver.RESULT_OK, bundle);
 
         } catch (Exception e) {
+            Crashlytics.logException(e);
             Bundle bundle = new Bundle();
             bundle.putString(ServerResultReceiver.KEY_ERROR, e.toString());
             mServerListener.send(ServerResultReceiver.RESULT_FAIL, bundle);
         } finally {
             try {
-
                 if (urlConnection != null) urlConnection.disconnect();
                 if (reader != null) reader.close();
                 if (inputStream != null) inputStream.close();
             } catch (Exception e) {
+                Crashlytics.logException(e);
                 Log.d(LOG_TAG, e.toString());
             }
         }
@@ -317,6 +368,11 @@ public class ServerConnectionService extends IntentService {
         return body.toString();
     }
 
+    /**
+     * Creates the start work body with order, process and batch id
+     *
+     * @param intent The service intent
+     */
     private String createBodyStartWork(Intent intent) throws JSONException {
         int orderID = intent.getIntExtra(getString(R.string.key_order_id), 0);
         int processID = intent.getIntExtra(getString(R.string.key_process_id), 0);
@@ -331,6 +387,44 @@ public class ServerConnectionService extends IntentService {
         earning.put(getString(R.string.key_order_id), orderID);
         earning.put(getString(R.string.key_process_id), processID);
         earning.put(getString(R.string.key_batch_id), batchID);
+        body.put(getString(R.string.key_earning), earning);
+
+        return body.toString();
+    }
+
+    /**
+     * Creates pause / resume body
+     *
+     * @param process Pause or resume process string
+     */
+    public String createBodyPauseResumeWork(String process) throws JSONException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ENGLISH);
+
+        JSONObject body = new JSONObject();
+        JSONObject earning = new JSONObject();
+        earning.put(process, df.format(Calendar.getInstance().getTime()));
+        body.put(getString(R.string.key_earning), earning);
+
+        return body.toString();
+    }
+
+    /**
+     * Creates complete work body with complete time, made pieces and time worked.
+     * If the pieces are equal to the required pieces the param is not added and the API completes the
+     * entire batch
+     *
+     * @param intent The service intent
+     */
+    public String createBodyCompleteWork (Intent intent) throws JSONException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ENGLISH);
+        long time = intent.getLongExtra(getString(R.string.key_time_worked), 0);
+        int pieces = intent.getIntExtra(getString(R.string.key_pieces), 0);
+
+        JSONObject body = new JSONObject();
+        JSONObject earning = new JSONObject();
+        earning.put(getString(R.string.key_complete), df.format(Calendar.getInstance().getTime()));
+        earning.put(getString(R.string.key_time_worked), time);
+        if (pieces != 0) earning.put(getString(R.string.key_pieces), pieces);
         body.put(getString(R.string.key_earning), earning);
 
         return body.toString();

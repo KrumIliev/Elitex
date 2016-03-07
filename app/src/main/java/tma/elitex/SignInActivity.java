@@ -13,9 +13,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import io.fabric.sdk.android.Fabric;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +32,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import tma.elitex.reference.ReferenceActivity;
 import tma.elitex.server.ServerConnectionService;
 import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
@@ -61,6 +64,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_sign_in);
 
         // Dims the navigation buttons
@@ -100,27 +104,34 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     /**
-     * Checks if the user closed the application without finishing his working task
-     * if yes checks if the work task was started the same day
-     * and if yes the application goes directly to work screen to continue the task
+     * Checks if the user closed the application from home button or the application crashed
+     * and if yes it restores it to its previous state
      */
     private void checkIfWorkWasComplected() {
         try {
-            String token = mElitexData.getAccessToken(); // User access token if its null or empty return to login
+            // User access token if its null or empty return to login
+            String token = mElitexData.getAccessToken();
+            if (token == null || token.isEmpty()) {
+                return;
+            }
 
-            // Check how many days have passed since the task was started
-            // this is necessary because the server automatically closes all work tasks in the evening
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH);
-            Date previousDate = df.parse(mElitexData.getOperationAndBatch().mStartDate);
-            Calendar cal = Calendar.getInstance();
-            Date currentDate = df.parse(df.format(cal.getTime()));
-            long diff = previousDate.getTime() - currentDate.getTime();
-            long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+            // Check if the app was closed from work activity
+            if (mElitexData.getTimePassed() != 0) {
 
-            if (mElitexData.isTaskRunning() && token != null && !token.isEmpty() && days < 1) {
-                Intent intent = new Intent(this, WorkActivity.class);
-                intent.putExtra(getString(R.string.key_time), mElitexData.getTimePassed());
-                startActivity(intent);
+                // Check how many days have passed since the task was started
+                // this is necessary because the server automatically closes all work tasks in the evening
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.ENGLISH);
+                Date previousDate = df.parse(mElitexData.getOperationAndBatch().mStartDate);
+                Calendar cal = Calendar.getInstance();
+                Date currentDate = df.parse(df.format(cal.getTime()));
+                long diff = previousDate.getTime() - currentDate.getTime();
+                long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+
+                if (days < 1) {
+                    Intent intent = new Intent(this, WorkActivity.class);
+                    intent.putExtra(getString(R.string.key_time), mElitexData.getTimePassed());
+                    startActivity(intent);
+                }
             }
         } catch (ParseException e) {
             Log.d(LOG_TAG, e.toString());

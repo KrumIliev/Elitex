@@ -8,6 +8,7 @@
     <string name="server_url_batch">api/tma/batches/</string>
     <string name="server_url_reports">api/tma/earnings_report/</string>
     <string name="server_url_start_work">api/tma/earnings</string>
+    <string name="server_url_earnings">api/tma/earnings/</string>
 
     <!-- Server headers -->
     <string name="server_content_type">Content-Type</string>
@@ -60,5 +61,12 @@
     <string name="key_pieces">pieces</string>
     <string name="key_earning">earning</string>
     <string name="key_start_date">created_at</string>
+    <string name="key_position">position</string>
+    <string name="key_pause">paused_at</string>
+    <string name="key_complete">completed_at</string>
+    <string name="key_resume">restarted_at</string>
+    <string name="key_work_id">work_id</string>
+    <string name="key_time_worked">time</string>
+
 
 </resources>

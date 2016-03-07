@@ -35,6 +35,7 @@
     <string name="title_machine">Машина:\u0020</string>
     <string name="menu_reference">Справки</string>
     <string name="menu_exit">Изход</string>
+    <string name="massage_batch_ready">Партидата е завършена. Моля заредете нова партида.</string>
 
     <!-- Work Activity strings -->
     <string name="button_pause">Почивка</string>

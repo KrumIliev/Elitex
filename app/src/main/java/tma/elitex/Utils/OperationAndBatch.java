@@ -20,7 +20,7 @@ public class OperationAndBatch {
     public int mBatchNumber;
     public String mFeatures;
     public String mColour;
-    public int mBatchCount;
+    public int mTotalPieces;
     public int mMade;
     public int mRemaining;
     public String mSize;
@@ -28,7 +28,7 @@ public class OperationAndBatch {
     // Additional information
     public int mWorkId; // id of the work process to update process state
     public int mNeededPieces; // how many pieces are needed to complete this operation
-    public String mStartDate; // Date string when work was started in format yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+    public String mStartDate; // Date string when work was started in format yyyy-MM-dd'T'HH:mm:ss.SSSZ
 
     public boolean mHasBatch = false;
 
@@ -53,12 +53,12 @@ public class OperationAndBatch {
     /**
      * Sets the batch data
      */
-    public void setBatch (int batchId, int batchNumber, String features, String colour, int batchCount, int made, int remaining, String size) {
+    public void setBatch (int batchId, int batchNumber, String features, String colour, int totalPieces, int made, int remaining, String size) {
         this.mBatchId = batchId;
         this.mBatchNumber = batchNumber;
         this.mFeatures = features;
         this.mColour = colour;
-        this.mBatchCount = batchCount;
+        this.mTotalPieces = totalPieces;
         this.mMade = made;
         this.mRemaining = remaining;
         this.mSize = size;
@@ -95,7 +95,7 @@ public class OperationAndBatch {
         mBatchNumber = 0;
         this.mFeatures = null;
         this.mColour = null;
-        this.mBatchCount = 0;
+        this.mTotalPieces = 0;
         this.mMade = 0;
         this.mRemaining = 0;
         this.mSize = null;

@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+
 /**
  * Created by Krum Iliev.
  */
@@ -57,6 +59,7 @@ public class ServerResultReceiver extends ResultReceiver {
                 Log.d(LOG_TAG, resultData.getString(KEY_ERROR));
             } else {
                 // There was a error, log massage
+                Crashlytics.logException(new RuntimeException("Unknown result code: " + resultCode));
                 Log.d(LOG_TAG, "Unknown result code: " + resultCode);
             }
         }

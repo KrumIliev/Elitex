@@ -14,9 +14,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import tma.elitex.server.ServerConnectionService;
+import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
 import tma.elitex.server.ServerResultReceiver;
 import tma.elitex.utils.ElitexData;
+import tma.elitex.utils.LoadingDialog;
 import tma.elitex.utils.MassageDialog;
 import tma.elitex.utils.FeaturesDialog;
 import tma.elitex.utils.OperationAndBatch;
@@ -47,6 +50,13 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     // This is used to ensure correct back button functionality if the user wants to continue working
     // after he has pressed the finnish button
     private boolean mCanConfirm = false;
+
+    private LoadingDialog mLoading;
+    private MassageDialog mMassageDialog;
+
+    private boolean mPausing = false;
+    private boolean mResuming = false;
+    private boolean mCompleatingWork = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +103,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
                 mTimerHandler.postDelayed(this, 500);
             }
         };
+        startWork();
     }
 
     private void initViews() {
@@ -102,7 +113,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
         ((TextView) findViewById(R.id.work_model)).setText(operationAndBatch.mModelName);
         ((TextView) findViewById(R.id.work_machine)).setText(getString(R.string.title_machine) + " " + operationAndBatch.mMachineName);
         ((TextView) findViewById(R.id.work_batch_number)).setText(getString(R.string.title_batch_number) + " " + operationAndBatch.mBatchNumber);
-        ((TextView) findViewById(R.id.work_count)).setText(getString(R.string.title_batch_count) + " " + operationAndBatch.mBatchCount);
+        ((TextView) findViewById(R.id.work_count)).setText(getString(R.string.title_batch_count) + " " + operationAndBatch.mTotalPieces);
         ((TextView) findViewById(R.id.work_size)).setText(getString(R.string.title_batch_size) + " " + operationAndBatch.mSize);
         ((TextView) findViewById(R.id.work_colour)).setText(getString(R.string.title_batch_colour) + " " + operationAndBatch.mColour);
         ((TextView) findViewById(R.id.work_features)).setText(operationAndBatch.mFeatures);
@@ -118,18 +129,15 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
         mFinnish.setOnClickListener(this);
 
         mFeaturesDialog = new FeaturesDialog(this, operationAndBatch.mFeatures);
+
+        mLoading = new LoadingDialog(this);
+        mMassageDialog = new MassageDialog(this);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        setTimerState();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setTimerState();
+    protected void onStop() {
+        mElitexData.saveWorkTime(mTimeElapsed);
+        super.onStop();
     }
 
     @Override
@@ -139,7 +147,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
                 mFeaturesDialog.show();
                 break;
             case R.id.work_button_pause:
-                setTimerState();
+                pauseResumeWork();
                 break;
             case R.id.work_button_finnish:
                 finishWork();
@@ -147,29 +155,47 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void setTimerState () {
+    private void pauseResumeWork() {
+        Intent intent = new Intent(this, ServerConnectionService.class);
+        intent.putExtra(getString(R.string.key_listener), mResultReceiver);
+        intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
+        intent.putExtra(getString(R.string.key_work_id), String.valueOf(mElitexData.getOperationAndBatch().mWorkId));
+
         if (mTimerIsRunning) {
-            mTimerIsRunning = false;
-            mTimerHandler.removeCallbacks(mTimerRunnable);
-            mPause.setText(getString(R.string.button_continue));
-            mFinnish.setVisibility(View.GONE);
-            mTimeElapsed = mTimeElapsed + (System.currentTimeMillis() - mStartTime);
+            intent.putExtra(getString(R.string.key_request), ServerRequests.PAUSE_WORK);
+            mPausing = true;
         } else {
-            mTimerIsRunning = true;
-            mCanConfirm = false;
-            mConfirmContainer.setVisibility(View.GONE);
-            mTimerText.setVisibility(View.VISIBLE);
-            mStartTime = System.currentTimeMillis();
-            mTimerHandler.postDelayed(mTimerRunnable, 0);
-            mPause.setText(getString(R.string.button_pause));
-            mFinnish.setVisibility(View.VISIBLE);
-            mFinnish.setText(getString(R.string.button_finnish));
+            intent.putExtra(getString(R.string.key_request), ServerRequests.RESUME_WORK);
+            mResuming = true;
         }
+
+        startService(intent);
+        mLoading.show();
     }
 
-    private void finishWork () {
+    private void stopWork() {
+        mTimerIsRunning = false;
+        mTimerHandler.removeCallbacks(mTimerRunnable);
+        mPause.setText(getString(R.string.button_continue));
+        mFinnish.setVisibility(View.GONE);
+        mTimeElapsed = mTimeElapsed + (System.currentTimeMillis() - mStartTime);
+    }
+
+    private void startWork() {
+        mTimerIsRunning = true;
+        mCanConfirm = false;
+        mConfirmContainer.setVisibility(View.GONE);
+        mTimerText.setVisibility(View.VISIBLE);
+        mStartTime = System.currentTimeMillis();
+        mTimerHandler.postDelayed(mTimerRunnable, 0);
+        mPause.setText(getString(R.string.button_pause));
+        mFinnish.setVisibility(View.VISIBLE);
+        mFinnish.setText(getString(R.string.button_finnish));
+    }
+
+    private void finishWork() {
         if (mCanConfirm) {
-            sendWorkDataAndFinnish();
+            sendWorkData();
         } else {
             mTimerIsRunning = false;
             mTimerHandler.removeCallbacks(mTimerRunnable);
@@ -185,28 +211,62 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void sendWorkDataAndFinnish () {
+    private void sendWorkData() {
         String data = mWorkCount.getText().toString();
         if (data.isEmpty()) {
             new MassageDialog(this, getString(R.string.massage_count)).show();
             return;
         }
 
-        int count = Integer.valueOf(data);
-        Log.d(LOG_TAG, "Final count: " + count);
+        int pieces = Integer.valueOf(data);
+        long time = mTimeElapsed / 1000;
+        Log.d(LOG_TAG, "Final count: " + pieces);
 
-        Intent intent = new Intent(this, LoadActivity.class);
-        startActivity(intent);
+        Intent intent = new Intent(this, ServerConnectionService.class);
+        intent.putExtra(getString(R.string.key_listener), mResultReceiver);
+        intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
+        intent.putExtra(getString(R.string.key_work_id), String.valueOf(mElitexData.getOperationAndBatch().mWorkId));
+        intent.putExtra(getString(R.string.key_time_worked), time);
+        if (pieces != mElitexData.getOperationAndBatch().mTotalPieces) {
+            intent.putExtra(getString(R.string.key_pieces), pieces);
+        }
+        intent.putExtra(getString(R.string.key_request), ServerRequests.COMPLETE_WORK);
+        mCompleatingWork = true;
+        startService(intent);
+        mLoading.show();
     }
 
     @Override
     public void requestReady(String result) {
+        Log.d(LOG_TAG, result);
+        mLoading.dismiss(); // Remove loading dialog
 
+        // !!! The work screen does not expect any response data from the API if the response is positive
+        // !!! everything is OK
+
+        if (mPausing) {
+            mPausing = false;
+            stopWork();
+        }
+
+        if (mResuming) {
+            mResuming = false;
+            startWork();
+        }
+
+        if (mCompleatingWork) {
+            mCompleatingWork = false;
+            mElitexData.saveWorkTime(0);
+            Intent intent = new Intent(this, LoadActivity.class);
+            startActivity(intent);
+        }
     }
 
     @Override
     public void requestFailed() {
-
+        mLoading.dismiss();
+        mMassageDialog.setMassageText(getString(R.string.massage_server_failed));
+        mMassageDialog.show();
     }
 
     @Override

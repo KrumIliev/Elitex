@@ -49,8 +49,12 @@ public class ElitexData {
     private final String KEY_WORK_ID = "work_id";
     private final String KEY_PIECES = "pieces";
     private final String KEY_START_DATE = "start_date";
-    private final String KEY_TASK_RUNNING = "task_running"; // This is used if the application closes without completing the running task
     private final String KEY_WORK_TIME = "time";
+
+    // Activity keys
+    public static final String KEY_ACTIVITY_LOAD = "activity_load";
+    public static final String KEY_ACTIVITY_REFERENCE = "activity_reference";
+    public static final String KEY_ACTIVITY_WORK = "activity_work";
 
     private final String PREFS_NAME = "elitexPrefsFile"; // Preference file name
     private SharedPreferences mData;
@@ -134,7 +138,7 @@ public class ElitexData {
         dataEditor.putInt(KEY_BATCH_NUMBER, operationAndBatch.mBatchNumber);
         dataEditor.putString(KEY_FEATURES, operationAndBatch.mFeatures);
         dataEditor.putString(KEY_COLOUR, operationAndBatch.mColour);
-        dataEditor.putInt(KEY_BATCH_COUNT, operationAndBatch.mBatchCount);
+        dataEditor.putInt(KEY_BATCH_COUNT, operationAndBatch.mTotalPieces);
         dataEditor.putInt(KEY_MADE, operationAndBatch.mMade);
         dataEditor.putInt(KEY_REMAINING, operationAndBatch.mRemaining);
         dataEditor.putString(KEY_SIZE, operationAndBatch.mSize);
@@ -204,23 +208,27 @@ public class ElitexData {
     }
 
     /**
-    * Sets the indicator is there currently running work task
-     * this is necessary if the application is terminated without completing the work task
+     * Sets if the activity is currently active. This is used when the app closes unexpectedly or the user hits
+     * the home button to restore the state as it was before
      *
-     * @param state is the task starting (true) or finishing (false)
-    */
-    public void setTaskRunning(boolean state) {
+     * @param key Activity key
+     * @param state Activity state, true if is active or false if not
+     */
+    public void setActivityState (String key, boolean state) {
         SharedPreferences.Editor dataEditor = mData.edit();
-        dataEditor.putBoolean(KEY_TASK_RUNNING, state);
+        dataEditor.putBoolean(key, state);
         dataEditor.apply();
     }
 
     /**
-     * @return true if the application was terminated without closing the work process
-     * correctly
+     * Returns the activity state. This is used when the app was closed unexpectedly or the user hit the home
+     * key to restore to any activity with active state
+     *
+     * @param key Activity key
+     * @return Activity state, true if is active or false if not
      */
-    public boolean isTaskRunning() {
-        return mData.getBoolean(KEY_TASK_RUNNING, false);
+    public boolean getActivityState (String key) {
+        return mData.getBoolean(key, false);
     }
 
     /**
@@ -228,10 +236,10 @@ public class ElitexData {
      *
      * @param time the time passed in milliseconds
      */
-    public void setWorkTime (long time) {
+    public void saveWorkTime(long time) {
         SharedPreferences.Editor dataEditor = mData.edit();
         dataEditor.putLong(KEY_WORK_TIME, time);
-        dataEditor.commit();
+        dataEditor.apply();
     }
 
     /**

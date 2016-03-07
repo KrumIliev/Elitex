@@ -95,6 +95,18 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         initViews();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mElitexData.setActivityState(ElitexData.KEY_ACTIVITY_LOAD, false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mElitexData.setActivityState(ElitexData.KEY_ACTIVITY_LOAD, true);
+    }
+
     /**
      * Initializes all activity related views
      */
@@ -374,10 +386,11 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void readBatchFromJson(JSONObject json) throws JSONException {
         JSONObject dist = json.getJSONObject(getString(R.string.key_distribution));
+
         mOperationAndBatch.setBatch(
                 json.getInt(getString(R.string.key_id)),
-                0, // TODO change after api implementation
-                json.getString(getString(R.string.key_features)),
+                json.getInt(getString(R.string.key_position)),
+                json.has(getString(R.string.key_features)) ? json.getString(getString(R.string.key_features)) : "",
                 dist.getString(getString(R.string.key_color)),
                 json.getInt(getString(R.string.key_number)),
                 json.getInt(getString(R.string.key_made_pieces)),
@@ -386,7 +399,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         );
 
         mBatchContainer.setVisibility(View.VISIBLE);
-        mBatchCount.setText(getString(R.string.title_batch_count) + " " + mOperationAndBatch.mBatchCount);
+        mBatchCount.setText(getString(R.string.title_batch_count) + " " + mOperationAndBatch.mTotalPieces);
         mBatchNumber.setText(getString(R.string.title_batch_number) + " " + mOperationAndBatch.mBatchNumber);
         mBatchSize.setText(getString(R.string.title_batch_size) + " " + mOperationAndBatch.mSize);
         mBatchColour.setText(getString(R.string.title_batch_colour) + " " + mOperationAndBatch.mColour);
@@ -401,6 +414,14 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         mLoad.setText(getString(R.string.button_load_start));
         mLoadingBatch = false;
         mBatchLoaded = true;
+
+        // Check if the pieces needed are 0 if yes the batch is completed, show massage
+        // and reset loading batch
+        if (mOperationAndBatch.mTotalPieces == 0) {
+            resetViewBatch();
+            mMassageDialog.setMassageText(getString(R.string.massage_batch_ready));
+            mMassageDialog.show();
+        }
     }
 
     /**
@@ -416,7 +437,6 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
 
         // Save the data in shared prefs
         mElitexData.addOperationAndBatch(mOperationAndBatch);
-        mElitexData.setTaskRunning(true);
 
         // Start work activity
         Intent intent = new Intent(this, WorkActivity.class);
