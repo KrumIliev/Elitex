@@ -56,7 +56,8 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean mPausing = false;
     private boolean mResuming = false;
-    private boolean mCompleatingWork = false;
+    private boolean mCompletingWork = false;
+    private boolean mCompleting = false; // this is used to ensure correct back navigation when compleating work
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +99,10 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
                 long minute = (millis / (1000 * 60)) % 60;
                 long hour = (millis / (1000 * 60 * 60)) % 24;
 
+                if (second == 30) {
+                    mElitexData.saveWorkTime(millis); // Save the time every 30th second
+                }
+
                 mTimerText.setText(String.format("%02d : %02d : %02d", hour, minute, second));
 
                 mTimerHandler.postDelayed(this, 500);
@@ -113,7 +118,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
         ((TextView) findViewById(R.id.work_model)).setText(operationAndBatch.mModelName);
         ((TextView) findViewById(R.id.work_machine)).setText(getString(R.string.title_machine) + " " + operationAndBatch.mMachineName);
         ((TextView) findViewById(R.id.work_batch_number)).setText(getString(R.string.title_batch_number) + " " + operationAndBatch.mBatchNumber);
-        ((TextView) findViewById(R.id.work_count)).setText(getString(R.string.title_batch_count) + " " + operationAndBatch.mTotalPieces);
+        ((TextView) findViewById(R.id.work_count)).setText(getString(R.string.title_batch_count) + " " + operationAndBatch.mRemaining);
         ((TextView) findViewById(R.id.work_size)).setText(getString(R.string.title_batch_size) + " " + operationAndBatch.mSize);
         ((TextView) findViewById(R.id.work_colour)).setText(getString(R.string.title_batch_colour) + " " + operationAndBatch.mColour);
         ((TextView) findViewById(R.id.work_features)).setText(operationAndBatch.mFeatures);
@@ -135,12 +140,6 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    protected void onStop() {
-        mElitexData.saveWorkTime(mTimeElapsed);
-        super.onStop();
-    }
-
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.work_features:
@@ -156,6 +155,11 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void pauseResumeWork() {
+        if (mCompleting) {
+            startWork();
+            return;
+        }
+
         Intent intent = new Intent(this, ServerConnectionService.class);
         intent.putExtra(getString(R.string.key_listener), mResultReceiver);
         intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
@@ -184,6 +188,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     private void startWork() {
         mTimerIsRunning = true;
         mCanConfirm = false;
+        mCompleting = false;
         mConfirmContainer.setVisibility(View.GONE);
         mTimerText.setVisibility(View.VISIBLE);
         mStartTime = System.currentTimeMillis();
@@ -197,6 +202,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
         if (mCanConfirm) {
             sendWorkData();
         } else {
+            mCompleting = true;
             mTimerIsRunning = false;
             mTimerHandler.removeCallbacks(mTimerRunnable);
             mTimeElapsed = mTimeElapsed + (System.currentTimeMillis() - mStartTime);
@@ -231,7 +237,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
             intent.putExtra(getString(R.string.key_pieces), pieces);
         }
         intent.putExtra(getString(R.string.key_request), ServerRequests.COMPLETE_WORK);
-        mCompleatingWork = true;
+        mCompletingWork = true;
         startService(intent);
         mLoading.show();
     }
@@ -254,8 +260,8 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
             startWork();
         }
 
-        if (mCompleatingWork) {
-            mCompleatingWork = false;
+        if (mCompletingWork) {
+            mCompletingWork = false;
             mElitexData.saveWorkTime(0);
             Intent intent = new Intent(this, LoadActivity.class);
             startActivity(intent);

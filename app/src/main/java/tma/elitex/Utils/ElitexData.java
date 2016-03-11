@@ -2,6 +2,7 @@ package tma.elitex.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,7 +10,7 @@ import java.util.Date;
 /**
  * Class for holding application data in SharedPreferences.
  * It can store the data for one user and one operation.
- * <p/>
+ *
  * Created by Krum Iliev.
  */
 public class ElitexData {
@@ -53,8 +54,6 @@ public class ElitexData {
 
     // Activity keys
     public static final String KEY_ACTIVITY_LOAD = "activity_load";
-    public static final String KEY_ACTIVITY_REFERENCE = "activity_reference";
-    public static final String KEY_ACTIVITY_WORK = "activity_work";
 
     private final String PREFS_NAME = "elitexPrefsFile"; // Preference file name
     private SharedPreferences mData;
@@ -208,30 +207,6 @@ public class ElitexData {
     }
 
     /**
-     * Sets if the activity is currently active. This is used when the app closes unexpectedly or the user hits
-     * the home button to restore the state as it was before
-     *
-     * @param key Activity key
-     * @param state Activity state, true if is active or false if not
-     */
-    public void setActivityState (String key, boolean state) {
-        SharedPreferences.Editor dataEditor = mData.edit();
-        dataEditor.putBoolean(key, state);
-        dataEditor.apply();
-    }
-
-    /**
-     * Returns the activity state. This is used when the app was closed unexpectedly or the user hit the home
-     * key to restore to any activity with active state
-     *
-     * @param key Activity key
-     * @return Activity state, true if is active or false if not
-     */
-    public boolean getActivityState (String key) {
-        return mData.getBoolean(key, false);
-    }
-
-    /**
      * Sets the time passed while working
      *
      * @param time the time passed in milliseconds
@@ -239,13 +214,14 @@ public class ElitexData {
     public void saveWorkTime(long time) {
         SharedPreferences.Editor dataEditor = mData.edit();
         dataEditor.putLong(KEY_WORK_TIME, time);
-        dataEditor.apply();
+        dataEditor.commit();
+        Log.d("Data", "Work time saved: " + time);
     }
 
     /**
      * @return the time spend on the before been stopped/paused in milliseconds
      */
-    public long getTimePassed () {
+    public long getTimePassed() {
         return mData.getLong(KEY_WORK_TIME, 0);
     }
 }

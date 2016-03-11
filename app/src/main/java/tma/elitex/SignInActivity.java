@@ -75,10 +75,9 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mElitexData = new ElitexData(this);
-        checkIfWorkWasComplected();
 
         // Checks if the user has checked keep logged on his previous login
-        if (mElitexData.getUserData().mKeepLogged) {
+        if (checkIfWorkWasComplected() && mElitexData.getUserData().mKeepLogged) {
             Intent intent = new Intent(this, LoadActivity.class);
             startActivity(intent);
         }
@@ -107,12 +106,12 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
      * Checks if the user closed the application from home button or the application crashed
      * and if yes it restores it to its previous state
      */
-    private void checkIfWorkWasComplected() {
+    private boolean checkIfWorkWasComplected() {
         try {
             // User access token if its null or empty return to login
             String token = mElitexData.getAccessToken();
             if (token == null || token.isEmpty()) {
-                return;
+                return true;
             }
 
             // Check if the app was closed from work activity
@@ -131,12 +130,14 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                     Intent intent = new Intent(this, WorkActivity.class);
                     intent.putExtra(getString(R.string.key_time), mElitexData.getTimePassed());
                     startActivity(intent);
+                    return false;
                 }
             }
         } catch (ParseException e) {
+            Crashlytics.logException(e);
             Log.d(LOG_TAG, e.toString());
         }
-
+        return true;
     }
 
     @Override
@@ -278,6 +279,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             mMassageDialog.show();
             // The server has returned unknown result log it
             Log.d(LOG_TAG, e.toString());
+            Crashlytics.logException(e);
         }
     }
 

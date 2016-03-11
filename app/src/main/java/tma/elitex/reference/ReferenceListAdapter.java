@@ -13,7 +13,7 @@ import tma.elitex.R;
 
 /**
  * adapter for reference activity list
- *
+ * <p/>
  * Created by Krum Iliev
  */
 public class ReferenceListAdapter extends BaseAdapter {

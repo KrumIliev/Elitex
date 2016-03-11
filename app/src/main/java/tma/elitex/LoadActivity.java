@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -93,18 +94,6 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setTitle(mElitexData.getActionBarTitle());
 
         initViews();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mElitexData.setActivityState(ElitexData.KEY_ACTIVITY_LOAD, false);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mElitexData.setActivityState(ElitexData.KEY_ACTIVITY_LOAD, true);
     }
 
     /**
@@ -262,6 +251,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
             intent.putExtra(getString(R.string.key_request), ServerRequests.LOAD_BATCH);
             intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
             intent.putExtra(getString(R.string.key_batch_id), String.valueOf(batchID));
+            intent.putExtra(getString(R.string.key_operation_id), mOperationAndBatch.mOperationId);
             startService(intent);
             mLoading.show();
 
@@ -304,6 +294,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
             // If the error happened during loading operation reset the hole view.
             // If the error happened during loading batch reset only the batch data.
             Log.d(LOG_TAG, e.toString());
+            Crashlytics.logException(e);
 
             if (mLoadingOperation) {
                 resetView();
@@ -399,7 +390,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
         );
 
         mBatchContainer.setVisibility(View.VISIBLE);
-        mBatchCount.setText(getString(R.string.title_batch_count) + " " + mOperationAndBatch.mTotalPieces);
+        mBatchCount.setText(getString(R.string.title_batch_count) + " " + mOperationAndBatch.mRemaining);
         mBatchNumber.setText(getString(R.string.title_batch_number) + " " + mOperationAndBatch.mBatchNumber);
         mBatchSize.setText(getString(R.string.title_batch_size) + " " + mOperationAndBatch.mSize);
         mBatchColour.setText(getString(R.string.title_batch_colour) + " " + mOperationAndBatch.mColour);
@@ -417,7 +408,7 @@ public class LoadActivity extends AppCompatActivity implements View.OnClickListe
 
         // Check if the pieces needed are 0 if yes the batch is completed, show massage
         // and reset loading batch
-        if (mOperationAndBatch.mTotalPieces == 0) {
+        if (mOperationAndBatch.mRemaining <= 0) {
             resetViewBatch();
             mMassageDialog.setMassageText(getString(R.string.massage_batch_ready));
             mMassageDialog.show();

@@ -13,6 +13,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -122,7 +124,6 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void onDateSet(int year, int month, int day) {
         mDateSelected = formatDate(year, month, day);
-        Log.d(LOG_TAG, mDateSelected);
 
         Intent intent = new Intent(this, ServerConnectionService.class);
         intent.putExtra(getString(R.string.key_listener), mResultReceiver);
@@ -182,6 +183,7 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
         } catch (JSONException e) {
             mMassageDialog.setMassageText(getString(R.string.massage_server_failed));
             mMassageDialog.show();
+            Crashlytics.logException(e);
             Log.d(LOG_TAG, e.toString());
         }
     }

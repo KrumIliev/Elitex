@@ -78,7 +78,9 @@ public class ServerConnectionService extends IntentService {
                 case LOAD_BATCH:
                     // Initiates loading batch
                     method = getString(R.string.server_method_get);
-                    serverPath = getString(R.string.server_url_batch) + intent.getStringExtra(getString(R.string.key_batch_id));
+                    serverPath = getString(R.string.server_url_batch)
+                            + intent.getStringExtra(getString(R.string.key_batch_id)) + "/"
+                            + intent.getStringExtra(getString(R.string.key_operation_id));
                     token = intent.getStringExtra(getString(R.string.key_token));
                     requestNoBody(serverPath, method, token);
                     break;

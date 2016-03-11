@@ -1,9 +1,5 @@
 package tma.elitex.reference;
 
-import android.content.Context;
-
-import tma.elitex.R;
-
 /**
  * Object for holding reference data returned from the server
  *
