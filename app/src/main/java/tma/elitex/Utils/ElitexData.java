@@ -4,16 +4,29 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Class for holding application data in SharedPreferences.
  * It can store the data for one user and one operation.
- *
+ * <p/>
  * Created by Krum Iliev.
  */
 public class ElitexData {
+
+    private final String KEY_OPERATIONS = "operations";
+
+    // Operation keys
+
 
     // User keys
     private final String KEY_USER_ID = "user_id";
@@ -26,16 +39,6 @@ public class ElitexData {
     private final String KEY_TOKEN = "token";
     private final String KEY_KEEP_LOGGED = "keep_logged";
 
-    // Operation keys
-    private final String KEY_OPERATION_ID = "operation_id";
-    private final String KEY_OPERATION_NAME = "operation_name";
-    private final String KEY_SERIAL_NUMBER = "serial_number";
-    private final String KEY_ALIGNED_TIME = "aligned_time";
-    private final String KEY_ORDER_ID = "order_id";
-    private final String KEY_ORDER_NAME = "order_name";
-    private final String KEY_MACHINE_ID = "machine_id";
-    private final String KEY_MACHINE_NAME = "machine_name";
-
     // Batch keys
     private final String KEY_BATCH_ID = "batch_id";
     private final String KEY_BATCH_NUMBER = "batch_number";
@@ -47,13 +50,12 @@ public class ElitexData {
     private final String KEY_REMAINING = "remaining";
 
     // Work data keys
-    private final String KEY_WORK_ID = "work_id";
-    private final String KEY_PIECES = "pieces";
+    private final String KEY_WORK_IDS_ARRAY = "work_ids_array";
+    private final String KEY_WORK_TITLE = "work_title";
+    private final String KEY_OPERATION_IDS_ARRAY = "operation_ids_array";
     private final String KEY_START_DATE = "start_date";
     private final String KEY_WORK_TIME = "time";
-
-    // Activity keys
-    public static final String KEY_ACTIVITY_LOAD = "activity_load";
+    private final String KEY_IS_SEPARATE = "separate";
 
     private final String PREFS_NAME = "elitexPrefsFile"; // Preference file name
     private SharedPreferences mData;
@@ -78,10 +80,24 @@ public class ElitexData {
         dataEditor.putStringSet(KEY_ROLES, user.mRoles);
         dataEditor.putBoolean(KEY_KEEP_LOGGED, user.mKeepLogged);
 
-        //Create action bar title
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String date = dateFormat.format(new Date());
-        String title = user.mUserName + ", " + user.mDepartmentName + " | " + "Дата: " + date;
+        // Save all changes
+        dataEditor.apply();
+    }
+
+    public void setActionBarTitle(User user, String serverTime) {
+        SharedPreferences.Editor dataEditor = mData.edit();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+
+        Date date = null;
+        try {
+            date = dateFormat.parse(serverTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        String dateStr = dateFormat.format(date);
+        String title = user.mUserName + ", " + user.mDepartmentName + " | " + "Дата: " + dateStr;
         dataEditor.putString(KEY_ACTIONBAR_TITLE, title);
 
         // Save all changes
@@ -114,61 +130,48 @@ public class ElitexData {
         return mData.getString(KEY_ACTIONBAR_TITLE, "");
     }
 
-    /**
-     * Saves operation and batch data in Elitex SharedPreferences
-     *
-     * @param operationAndBatch operation and batch data object
-     */
-    public void addOperationAndBatch(OperationAndBatch operationAndBatch) {
+    public void setWorkData(WorkData data) {
         SharedPreferences.Editor dataEditor = mData.edit();
 
-        // Add operation
-        dataEditor.putString(KEY_OPERATION_ID, operationAndBatch.mOperationId);
-        dataEditor.putString(KEY_OPERATION_NAME, operationAndBatch.mOperationName);
-        dataEditor.putInt(KEY_SERIAL_NUMBER, operationAndBatch.mSerialNumber);
-        dataEditor.putFloat(KEY_ALIGNED_TIME, operationAndBatch.mAlignedTime);
-        dataEditor.putInt(KEY_ORDER_ID, operationAndBatch.mOrderId);
-        dataEditor.putString(KEY_ORDER_NAME, operationAndBatch.mModelName);
-        dataEditor.putInt(KEY_MACHINE_ID, operationAndBatch.mMachineId);
-        dataEditor.putString(KEY_MACHINE_NAME, operationAndBatch.mMachineName);
+        if (data.batch != null) {
+            // Add batch
+            dataEditor.putInt(KEY_BATCH_ID, data.batch.mBatchId);
+            dataEditor.putInt(KEY_BATCH_NUMBER, data.batch.mBatchNumber);
+            dataEditor.putString(KEY_FEATURES, data.batch.mFeatures);
+            dataEditor.putString(KEY_COLOUR, data.batch.mColour);
+            dataEditor.putInt(KEY_BATCH_COUNT, data.batch.mTotalPieces);
+            dataEditor.putInt(KEY_MADE, data.batch.mMade);
+            dataEditor.putInt(KEY_REMAINING, data.batch.mRemaining);
+            dataEditor.putString(KEY_SIZE, data.batch.mSize);
+        } else {
+            dataEditor.putInt(KEY_BATCH_ID, -1);
+            dataEditor.putInt(KEY_BATCH_NUMBER, 0);
+            dataEditor.putString(KEY_FEATURES, "");
+            dataEditor.putString(KEY_COLOUR, "");
+            dataEditor.putInt(KEY_BATCH_COUNT, 0);
+            dataEditor.putInt(KEY_MADE, 0);
+            dataEditor.putInt(KEY_REMAINING, 0);
+            dataEditor.putString(KEY_SIZE, "");
+        }
 
-        // Add batch
-        dataEditor.putInt(KEY_BATCH_ID, operationAndBatch.mBatchId);
-        dataEditor.putInt(KEY_BATCH_NUMBER, operationAndBatch.mBatchNumber);
-        dataEditor.putString(KEY_FEATURES, operationAndBatch.mFeatures);
-        dataEditor.putString(KEY_COLOUR, operationAndBatch.mColour);
-        dataEditor.putInt(KEY_BATCH_COUNT, operationAndBatch.mTotalPieces);
-        dataEditor.putInt(KEY_MADE, operationAndBatch.mMade);
-        dataEditor.putInt(KEY_REMAINING, operationAndBatch.mRemaining);
-        dataEditor.putString(KEY_SIZE, operationAndBatch.mSize);
+        // Add operation ids
+        dataEditor.putString(KEY_OPERATION_IDS_ARRAY, data.operationIDs.toString());
 
-        // Add work data
-        dataEditor.putInt(KEY_WORK_ID, operationAndBatch.mWorkId);
-        dataEditor.putInt(KEY_PIECES, operationAndBatch.mNeededPieces);
-        dataEditor.putString(KEY_START_DATE, operationAndBatch.mStartDate);
+        // Add work ids
+        dataEditor.putString(KEY_WORK_IDS_ARRAY, data.workIDs.toString());
+
+        dataEditor.putString(KEY_WORK_TITLE, data.workTitle);
+
+        dataEditor.putString(KEY_START_DATE, data.startDate);
+
+        dataEditor.putBoolean(KEY_IS_SEPARATE, data.isSeparate);
 
         // Save all changes
         dataEditor.apply();
     }
 
-    /**
-     * Retrieves operation and batch data from Elitex SharedPreferences
-     *
-     * @return operation and batch data object
-     */
-    public OperationAndBatch getOperationAndBatch() {
-        OperationAndBatch operationAndBatch = new OperationAndBatch(
-                mData.getString(KEY_OPERATION_ID, null),
-                mData.getString(KEY_OPERATION_NAME, null),
-                mData.getInt(KEY_SERIAL_NUMBER, 0),
-                mData.getFloat(KEY_ALIGNED_TIME, 0),
-                mData.getInt(KEY_ORDER_ID, 0),
-                mData.getString(KEY_ORDER_NAME, null),
-                mData.getInt(KEY_MACHINE_ID, 0),
-                mData.getString(KEY_MACHINE_NAME, null)
-        );
-
-        operationAndBatch.setBatch(
+    public WorkData getWorkData() {
+        Batch batch = new Batch(
                 mData.getInt(KEY_BATCH_ID, 0),
                 mData.getInt(KEY_BATCH_NUMBER, 0),
                 mData.getString(KEY_FEATURES, null),
@@ -179,13 +182,20 @@ public class ElitexData {
                 mData.getString(KEY_SIZE, null)
         );
 
-        operationAndBatch.setWorkData(
-                mData.getInt(KEY_WORK_ID, 0),
-                mData.getInt(KEY_PIECES, 0),
-                mData.getString(KEY_START_DATE, null)
-        );
+        JSONArray operationIDs = null;
+        JSONArray workIDs = null;
+        try {
+            operationIDs = new JSONArray(mData.getString(KEY_OPERATION_IDS_ARRAY, ""));
+            workIDs = new JSONArray(mData.getString(KEY_WORK_IDS_ARRAY, ""));
+        } catch (JSONException e) {
+            Crashlytics.logException(e);
+        }
 
-        return operationAndBatch;
+        String workTitle = mData.getString(KEY_WORK_TITLE, "");
+        String date = mData.getString(KEY_START_DATE, Utils.getCurrentDate());
+        boolean isSeprate = mData.getBoolean(KEY_IS_SEPARATE, false);
+
+        return new WorkData(batch, operationIDs, workIDs, workTitle, date, isSeprate);
     }
 
     /**
@@ -214,7 +224,7 @@ public class ElitexData {
     public void saveWorkTime(long time) {
         SharedPreferences.Editor dataEditor = mData.edit();
         dataEditor.putLong(KEY_WORK_TIME, time);
-        dataEditor.commit();
+        dataEditor.apply();
         Log.d("Data", "Work time saved: " + time);
     }
 
@@ -223,5 +233,24 @@ public class ElitexData {
      */
     public long getTimePassed() {
         return mData.getLong(KEY_WORK_TIME, 0);
+    }
+
+    public void addOperation(String operation) {
+        Set<String> operations = getOperations();
+        operations.add(operation);
+
+        SharedPreferences.Editor dataEditor = mData.edit();
+        dataEditor.putStringSet(KEY_OPERATIONS, operations);
+        dataEditor.apply();
+    }
+
+    public Set<String> getOperations() {
+        return mData.getStringSet(KEY_OPERATIONS, new HashSet<String>());
+    }
+
+    public void resetOperations() {
+        SharedPreferences.Editor dataEditor = mData.edit();
+        dataEditor.putStringSet(KEY_OPERATIONS, new HashSet<String>());
+        dataEditor.apply();
     }
 }

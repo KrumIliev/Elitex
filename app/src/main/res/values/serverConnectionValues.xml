@@ -7,8 +7,7 @@
     <string name="server_url_operation">api/tma/processes/</string>
     <string name="server_url_batch">api/tma/batches/</string>
     <string name="server_url_reports">api/tma/earnings_report/</string>
-    <string name="server_url_start_work">api/tma/earnings</string>
-    <string name="server_url_earnings">api/tma/earnings/</string>
+    <string name="server_url_earnings">api/tma/earnings</string>
 
     <!-- Server headers -->
     <string name="server_content_type">Content-Type</string>
@@ -22,6 +21,7 @@
     <string name="server_method_get">GET</string>
     <string name="server_method_patch">PATCH</string>
     <string name="server_method_del">DEL</string>
+    <string name="server_method_put">PUT</string>
 
     <!-- Server params and json keys -->
     <string name="key_error">errors</string>
@@ -32,6 +32,7 @@
     <string name="key_token">access_token</string>
     <string name="key_massage">message</string>
     <string name="key_id">id</string>
+    <string name="key_ids">ids</string>
     <string name="key_name">name</string>
     <string name="key_department">department</string>
     <string name="key_department_id">id</string>
@@ -41,6 +42,7 @@
     <string name="key_operation_id">operation_id</string>
     <string name="key_batch_id">batch_id</string>
     <string name="key_process_id">process_id</string>
+    <string name="key_process_ids">process_ids</string>
     <string name="key_serial_number">serial_number</string>
     <string name="key_aligned_time">aligned_time</string>
     <string name="key_order">order</string>
@@ -56,6 +58,10 @@
     <string name="key_report_date">report_date</string>
     <string name="key_earnings">earnings</string>
     <string name="key_model">model</string>
+    <string name="key_identification_number">identification_number</string>
+    <string name="key_client_name">client_name</string>
+    <string name="key_client_model">client_model</string>
+    <string name="key_client_identification_number">client_identification_number</string>
     <string name="key_process">process</string>
     <string name="key_batch">batch</string>
     <string name="key_pieces">pieces</string>
@@ -66,7 +72,9 @@
     <string name="key_complete">completed_at</string>
     <string name="key_resume">restarted_at</string>
     <string name="key_work_id">work_id</string>
+    <string name="key_work_ids">work_ids</string>
     <string name="key_time_worked">time</string>
+    <string name="key_separate">separate</string>>
 
 
 </resources>

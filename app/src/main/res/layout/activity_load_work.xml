@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
-    android:padding="20dp">
+    android:orientation="vertical"
+    android:padding="10dp">
 
     <TextView
-        android:visibility="visible"
-        android:id="@+id/info_massage"
+        android:id="@+id/load_info_massage"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp"
-        android:gravity="center_horizontal"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
         android:text="@string/massage_operation_barcode"
         android:textColor="@color/colorTextLite"
         android:textSize="@dimen/text_size_large" />
 
     <LinearLayout
-        android:id="@+id/info_container"
+        android:id="@+id/load_info_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:orientation="horizontal">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:visibility="visible">
 
         <LinearLayout
-            android:id="@+id/info_operation_container"
+            android:id="@+id/load_info_operation_container"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
             android:orientation="vertical"
             android:visibility="gone">
 
             <TextView
+                android:id="@+id/load_operations_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
@@ -48,52 +48,20 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorAccent" />
 
-            <TextView
-                android:id="@+id/info_model"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Модел: Зимно Яке"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
-
-            <View
+            <ListView
+                android:id="@+id/load_info_operations_list"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:background="@color/colorAccent" />
-
-            <TextView
-                android:id="@+id/info_operation"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Операция: 04 - Зачистване на насрещни мостри"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:background="@color/colorAccent" />
-
-            <TextView
-                android:id="@+id/info_machine"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Машина: Права"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
+                android:layout_marginRight="20dp"
+                android:scrollbarThumbVertical="@drawable/list_scroll"
+                android:cacheColorHint="@android:color/transparent"
+                android:listSelector="@android:color/transparent" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/info_batch_container"
+            android:id="@+id/info_load_batch_container"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
             android:visibility="gone">
@@ -114,7 +82,7 @@
                 android:background="@color/colorAccent" />
 
             <TextView
-                android:id="@+id/info_batch_number"
+                android:id="@+id/load_info_batch_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
@@ -130,7 +98,7 @@
                 android:background="@color/colorAccent" />
 
             <TextView
-                android:id="@+id/info_batch_count"
+                android:id="@+id/load_info_batch_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
@@ -146,7 +114,7 @@
                 android:background="@color/colorAccent" />
 
             <TextView
-                android:id="@+id/info_size"
+                android:id="@+id/load_info_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
@@ -162,7 +130,7 @@
                 android:background="@color/colorAccent" />
 
             <TextView
-                android:id="@+id/info_colour"
+                android:id="@+id/load_info_colour"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
@@ -178,7 +146,7 @@
                 android:background="@color/colorAccent" />
 
             <TextView
-                android:id="@+id/info_features"
+                android:id="@+id/load_info_features"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
@@ -188,49 +156,74 @@
                 android:textSize="@dimen/text_size_medium" />
 
         </LinearLayout>
-
-        <Button
-            android:id="@+id/info_load_batch_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/button_custom"
-            android:padding="20dp"
-            android:text="@string/button_load"
-            android:textColor="@color/colorTextLite"
-            android:textSize="@dimen/text_size_large" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/info_load_continue_load"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/button_custom"
+        android:padding="20dp"
+        android:text="@string/button_load_next"
+        android:textColor="@color/colorTextLite"
+        android:textSize="@dimen/text_size_large"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/info_button_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/info_load_button"
+            android:id="@+id/load_info_load_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/button_custom"
             android:padding="20dp"
             android:text="@string/button_load"
+            android:visibility="visible"
             android:textColor="@color/colorTextLite"
             android:textSize="@dimen/text_size_large" />
 
         <Button
-            android:id="@+id/info_cancel_button"
+            android:id="@+id/load_info_load_batch_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginLeft="20dp"
+            android:background="@drawable/button_custom"
+            android:padding="20dp"
+            android:text="@string/button_load_qr"
+            android:textColor="@color/colorTextLite"
+            android:textSize="@dimen/text_size_large"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/load_info_start_work_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/button_custom"
+            android:padding="20dp"
+            android:text="@string/button_load_start"
+            android:textColor="@color/colorTextLite"
+            android:textSize="@dimen/text_size_large"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/load_info_cancel_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
             android:background="@drawable/button_custom"
             android:padding="20dp"
             android:text="@string/button_back"
             android:textColor="@color/colorTextLite"
             android:textSize="@dimen/text_size_large"
-            android:visibility="visible" />
+            android:visibility="gone" />
     </LinearLayout>
-</RelativeLayout>
+</LinearLayout>

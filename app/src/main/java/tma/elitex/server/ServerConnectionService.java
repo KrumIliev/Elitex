@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,7 +32,7 @@ import tma.elitex.R;
  * This class is used to communicate with the server api.
  * requestWithBody and requestNoBody are the main communication methods.
  * createBody... methods are for creating request bodies.
- * <p/>
+ * <p>
  * Created by Krum Iliev.
  */
 public class ServerConnectionService extends IntentService {
@@ -39,6 +40,8 @@ public class ServerConnectionService extends IntentService {
     private String LOG_TAG = ServerConnectionService.class.getSimpleName();
 
     private ResultReceiver mServerListener;
+
+    private final String HEADER_SERVER_TIME = "Server-Time";
 
     public ServerConnectionService() {
         super(ServerConnectionService.class.getSimpleName());
@@ -71,7 +74,8 @@ public class ServerConnectionService extends IntentService {
                 case LOAD_OPERATION:
                     // Initiates loading operation
                     method = getString(R.string.server_method_get);
-                    serverPath = getString(R.string.server_url_operation) + intent.getStringExtra(getString(R.string.key_operation_id));
+                    serverPath = getString(R.string.server_url_operation)
+                            + intent.getStringExtra(getString(R.string.key_operation_id));
                     token = intent.getStringExtra(getString(R.string.key_token));
                     requestNoBody(serverPath, method, token);
                     break;
@@ -87,32 +91,36 @@ public class ServerConnectionService extends IntentService {
                 case REPORTS:
                     // Initiates loading reports for selected date
                     method = getString(R.string.server_method_get);
-                    serverPath = getString(R.string.server_url_reports) + intent.getStringExtra(getString(R.string.key_report_date));
+                    serverPath = getString(R.string.server_url_reports)
+                            + intent.getStringExtra(getString(R.string.key_report_date));
                     token = intent.getStringExtra(getString(R.string.key_token));
                     requestNoBody(serverPath, method, token);
+                    break;
                 case START_WORK:
                     // Initiates start work
                     body = createBodyStartWork(intent);
                     method = getString(R.string.server_method_post);
-                    serverPath = getString(R.string.server_url_start_work);
+                    serverPath = getString(R.string.server_url_earnings);
                     token = intent.getStringExtra(getString(R.string.key_token));
                     Log.d(LOG_TAG, "Work body: " + body);
                     requestWithBody(serverPath, method, token, body);
                     break;
                 case PAUSE_WORK:
                     // Initiates pause work
-                    body = createBodyPauseResumeWork(getString(R.string.key_pause));
-                    method = getString(R.string.server_method_patch);
-                    serverPath = getString(R.string.server_url_earnings) + intent.getStringExtra(getString(R.string.key_work_id));
+                    body = createBodyPauseResumeWork(getString(R.string.key_pause),
+                            intent.getStringExtra(getString(R.string.key_work_ids)));
+                    method = getString(R.string.server_method_put);
+                    serverPath = getString(R.string.server_url_earnings);
                     token = intent.getStringExtra(getString(R.string.key_token));
                     Log.d(LOG_TAG, "Work body: " + body);
                     requestWithBody(serverPath, method, token, body);
                     break;
                 case RESUME_WORK:
                     // Initiates resume work
-                    body = createBodyPauseResumeWork(getString(R.string.key_resume));
-                    method = getString(R.string.server_method_patch);
-                    serverPath = getString(R.string.server_url_earnings) + intent.getStringExtra(getString(R.string.key_work_id));
+                    body = createBodyPauseResumeWork(getString(R.string.key_resume),
+                            intent.getStringExtra(getString(R.string.key_work_ids)));
+                    method = getString(R.string.server_method_put);
+                    serverPath = getString(R.string.server_url_earnings);
                     token = intent.getStringExtra(getString(R.string.key_token));
                     Log.d(LOG_TAG, "Work body: " + body);
                     requestWithBody(serverPath, method, token, body);
@@ -120,8 +128,8 @@ public class ServerConnectionService extends IntentService {
                 case COMPLETE_WORK:
                     // Initiates complete work
                     body = createBodyCompleteWork(intent);
-                    method = getString(R.string.server_method_patch);
-                    serverPath = getString(R.string.server_url_earnings) + intent.getStringExtra(getString(R.string.key_work_id));
+                    method = getString(R.string.server_method_put);
+                    serverPath = getString(R.string.server_url_earnings);
                     token = intent.getStringExtra(getString(R.string.key_token));
                     Log.d(LOG_TAG, "Work body: " + body);
                     requestWithBody(serverPath, method, token, body);
@@ -130,8 +138,8 @@ public class ServerConnectionService extends IntentService {
             }
 
         } catch (Exception e) {
-            Crashlytics.logException(e);
             Log.d(LOG_TAG, e.toString());
+            Crashlytics.logException(e);
             Bundle bundle = new Bundle();
             bundle.putString(ServerResultReceiver.KEY_ERROR, e.toString());
             mServerListener.send(ServerResultReceiver.RESULT_FAIL, bundle);
@@ -155,7 +163,7 @@ public class ServerConnectionService extends IntentService {
         InputStream inputStream = null;
         BufferedReader reader = null;
 
-        Log.d(LOG_TAG, serverPath);
+        Log.d(LOG_TAG, serverURL);
 
         try {
             // Create the connection
@@ -232,6 +240,7 @@ public class ServerConnectionService extends IntentService {
             // Return results
             Bundle bundle = new Bundle();
             bundle.putString(ServerResultReceiver.KEY_RESULT, result);
+            bundle.putString(ServerResultReceiver.KEY_SERVER_TIME, urlConnection.getHeaderField(HEADER_SERVER_TIME));
             mServerListener.send(ServerResultReceiver.RESULT_OK, bundle);
 
         } catch (Exception e) {
@@ -267,7 +276,7 @@ public class ServerConnectionService extends IntentService {
         InputStream inputStream = null;
         BufferedReader reader = null;
 
-        Log.d(LOG_TAG, serverPath);
+        Log.d(LOG_TAG, serverURL);
 
         try {
             // Create the connection
@@ -335,6 +344,7 @@ public class ServerConnectionService extends IntentService {
             // Return results
             Bundle bundle = new Bundle();
             bundle.putString(ServerResultReceiver.KEY_RESULT, result);
+            bundle.putString(ServerResultReceiver.KEY_SERVER_TIME, urlConnection.getHeaderField(HEADER_SERVER_TIME));
             mServerListener.send(ServerResultReceiver.RESULT_OK, bundle);
 
         } catch (Exception e) {
@@ -376,21 +386,24 @@ public class ServerConnectionService extends IntentService {
      * @param intent The service intent
      */
     private String createBodyStartWork(Intent intent) throws JSONException {
-        int orderID = intent.getIntExtra(getString(R.string.key_order_id), 0);
-        int processID = intent.getIntExtra(getString(R.string.key_process_id), 0);
+        String orderID = intent.getStringExtra(getString(R.string.key_order_id));
+        String processIDs = intent.getStringExtra(getString(R.string.key_process_id));
         int batchID = intent.getIntExtra(getString(R.string.key_batch_id), 0);
 
-        if (orderID == 0 || processID == 0 || batchID == 0) {
+        if (orderID.length() == 0 || processIDs.length() == 0) {
             throw new JSONException("Bad start work params");
         }
+
+        JSONArray process = new JSONArray(processIDs);
 
         JSONObject body = new JSONObject();
         JSONObject earning = new JSONObject();
         earning.put(getString(R.string.key_order_id), orderID);
-        earning.put(getString(R.string.key_process_id), processID);
-        earning.put(getString(R.string.key_batch_id), batchID);
-        body.put(getString(R.string.key_earning), earning);
+        earning.put(getString(R.string.key_process_ids), process);
+        if (batchID != 0) earning.put(getString(R.string.key_batch_id), batchID);
+        body.put(getString(R.string.key_earnings), earning);
 
+        Log.d(LOG_TAG, body.toString());
         return body.toString();
     }
 
@@ -399,13 +412,15 @@ public class ServerConnectionService extends IntentService {
      *
      * @param process Pause or resume process string
      */
-    public String createBodyPauseResumeWork(String process) throws JSONException {
+    public String createBodyPauseResumeWork(String process, String workIDs) throws JSONException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ENGLISH);
 
         JSONObject body = new JSONObject();
         JSONObject earning = new JSONObject();
+        JSONArray workIDsArray = new JSONArray(workIDs);
+        earning.put(getString(R.string.key_ids), workIDsArray);
         earning.put(process, df.format(Calendar.getInstance().getTime()));
-        body.put(getString(R.string.key_earning), earning);
+        body.put(getString(R.string.key_earnings), earning);
 
         return body.toString();
     }
@@ -417,17 +432,20 @@ public class ServerConnectionService extends IntentService {
      *
      * @param intent The service intent
      */
-    public String createBodyCompleteWork (Intent intent) throws JSONException {
+    public String createBodyCompleteWork(Intent intent) throws JSONException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ENGLISH);
         long time = intent.getLongExtra(getString(R.string.key_time_worked), 0);
         int pieces = intent.getIntExtra(getString(R.string.key_pieces), 0);
+        String workIDs = intent.getStringExtra(getString(R.string.key_work_ids));
+        JSONArray workIDsArray = new JSONArray(workIDs);
 
         JSONObject body = new JSONObject();
         JSONObject earning = new JSONObject();
+        earning.put(getString(R.string.key_ids), workIDsArray);
         earning.put(getString(R.string.key_complete), df.format(Calendar.getInstance().getTime()));
         earning.put(getString(R.string.key_time_worked), time);
         if (pieces != 0) earning.put(getString(R.string.key_pieces), pieces);
-        body.put(getString(R.string.key_earning), earning);
+        body.put(getString(R.string.key_earnings), earning);
 
         return body.toString();
     }

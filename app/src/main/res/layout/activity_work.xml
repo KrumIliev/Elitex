@@ -11,17 +11,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:textColor="@color/colorTextLite"
-        android:text="Operation Name"
         android:singleLine="true"
-        android:textSize="@dimen/text_size_large"/>
+        android:text="Operation Name"
+        android:textColor="@color/colorTextLite"
+        android:textSize="@dimen/text_size_large" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/colorTextLite" />
+
+    <TextView
+        android:id="@+id/work_operation_ids"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:text="156, 154, 122, 147"
+        android:textColor="@color/colorRed"
+        android:textSize="@dimen/text_size_large" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginBottom="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:background="@color/colorTextLite" />
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,21 +47,38 @@
         android:orientation="horizontal">
 
         <LinearLayout
+            android:id="@+id/work_batch_container"
+            android:visibility="visible"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:layout_marginRight="10dp"
-            android:paddingRight="30dp"
-            android:orientation="vertical">
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingRight="30dp">
 
-            <TextView
-                android:id="@+id/work_model"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Модел: Зимно Яке"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:text="@string/batch_id_title"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_medium" />
+
+                <TextView
+                    android:id="@+id/work_batch_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:text="01"
+                    android:textColor="@color/colorAmber"
+                    android:textSize="@dimen/text_size_large" />
+            </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -53,14 +87,28 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorAccent" />
 
-            <TextView
-                android:id="@+id/work_machine"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Машина: Права"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:text="@string/batch_count_title"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_medium" />
+
+                <TextView
+                    android:id="@+id/work_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:text="100"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_medium" />
+            </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -69,14 +117,30 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorAccent" />
 
-            <TextView
-                android:id="@+id/work_batch_number"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Партида: 01"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:text="@string/batch_size_title"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_medium" />
+
+                <TextView
+                    android:id="@+id/work_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:text="XXL"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_medium" />
+
+            </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -85,121 +149,147 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorAccent" />
 
-            <TextView
-                android:id="@+id/work_count"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Брой: 100"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
+                android:layout_height="wrap_content">
 
-            <View
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:text="@string/batch_colour_title"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_medium" />
+
+                <TextView
+                    android:id="@+id/work_colour"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:text="Бял"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_medium" />
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:background="@color/colorAccent" />
+                android:layout_height="0dp"
+                android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/work_size"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Размер: XXL"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:background="@color/colorAccent" />
-
-            <TextView
-                android:id="@+id/work_colour"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Цвят: Бял"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:background="@color/colorAccent" />
-
-            <TextView
-                android:id="@+id/work_features"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Особенности: "
-                android:singleLine="true"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_medium" />
-
+                <Button
+                    android:id="@+id/work_button_back"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:background="@drawable/button_custom"
+                    android:padding="20dp"
+                    android:text="@string/button_back"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_large"
+                    android:visibility="gone" />
+            </RelativeLayout>
         </LinearLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/work_timer"
+            <RelativeLayout
+                android:id="@+id/work_buttons_top_container"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:textColor="@color/colorTextLite"
-                android:textSize="80dp"
-                android:gravity="center"
-                android:text="01 : 22 : 48"/>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp">
 
-            <LinearLayout
-                android:id="@+id/work_confirm_container"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:visibility="gone"
-                android:orientation="vertical">
+                <Button
+                    android:id="@+id/work_button_pause"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_custom"
+                    android:padding="20dp"
+                    android:text="@string/button_pause"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_large"
+                    android:visibility="visible" />
+
+                <Button
+                    android:id="@+id/work_button_stop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_red"
+                    android:padding="20dp"
+                    android:text="@string/button_stop"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_large"
+                    android:visibility="gone" />
+
                 <EditText
                     android:id="@+id/work_confirm"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:hint="@string/confirm_hint"
                     android:inputType="number"
                     android:textColor="@color/colorTextLite"
+                    android:textColorHint="@color/colorTextLite"
                     android:textSize="@dimen/text_size_large"
-                    android:hint="@string/confirm_hint"
-                    android:textColorHint="@color/colorTextLite"/>
-            </LinearLayout>
+                    android:visibility="gone" />
+            </RelativeLayout>
 
-            <Button
-                android:id="@+id/work_button_pause"
+            <TextView
+                android:id="@+id/work_timer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/work_buttons_bottom_container"
+                android:layout_below="@+id/work_buttons_top_container"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:text="01 : 22 : 48"
+                android:textColor="@color/colorTextLite"
+                android:textSize="80dp" />
+
+            <RelativeLayout
+                android:id="@+id/work_buttons_bottom_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_custom"
-                android:padding="20dp"
-                android:text="@string/button_pause"
-                android:textColor="@color/colorTextLite"
-                android:layout_marginBottom="10dp"
-                android:textSize="@dimen/text_size_large" />
+                android:layout_alignParentBottom="true">
 
-            <Button
-                android:id="@+id/work_button_finnish"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_custom"
-                android:padding="20dp"
-                android:text="@string/button_finnish"
-                android:textColor="@color/colorTextLite"
-                android:textSize="@dimen/text_size_large" />
+                <Button
+                    android:id="@+id/work_button_resume"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_custom"
+                    android:padding="20dp"
+                    android:text="@string/button_continue"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_large"
+                    android:visibility="gone"/>
 
-        </LinearLayout>
+                <Button
+                    android:id="@+id/work_button_confirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_custom"
+                    android:padding="20dp"
+                    android:text="@string/button_confirm"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_large"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/work_button_finnish"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_custom"
+                    android:padding="20dp"
+                    android:text="@string/button_finnish"
+                    android:textColor="@color/colorTextLite"
+                    android:textSize="@dimen/text_size_large"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
+        </RelativeLayout>
     </LinearLayout>
 </LinearLayout>

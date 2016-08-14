@@ -7,4 +7,9 @@
     <color name="colorTextLite">#FFFFFF</color>
     <color name="colorTextDark">#49ca8a</color>
     <color name="colorTextError">#FF5252</color>
+    <color name="colorRed">#F44336</color>
+    <color name="colorRedDark">#D50000</color>
+    <color name="colorAmber">#FFC107</color>
+    <color name="colorGray">#9E9E9E</color>
+    <color name="colorGrayDark">#424242</color>
 </resources>

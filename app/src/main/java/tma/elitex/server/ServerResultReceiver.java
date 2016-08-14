@@ -22,6 +22,7 @@ public class ServerResultReceiver extends ResultReceiver {
 
     // Result date keys
     public static final String KEY_RESULT = "result";
+    public static final String KEY_SERVER_TIME = "server_time";
     public static final String KEY_ERROR = "error";
 
     // Listener for communicating with the calling activity / fragment
@@ -36,7 +37,7 @@ public class ServerResultReceiver extends ResultReceiver {
      *
      * @param listener ServerResultListener implemented in the caller code
      */
-    public void serListener (ServerResultListener listener) {
+    public void serListener(ServerResultListener listener) {
         this.mListener = listener;
     }
 
@@ -51,7 +52,7 @@ public class ServerResultReceiver extends ResultReceiver {
         if (mListener != null) {
             if (resultCode == RESULT_OK) {
                 // Pass the result to the calling activity / fragment
-                mListener.requestReady(resultData.getString(KEY_RESULT));
+                mListener.requestReady(resultData.getString(KEY_RESULT), resultData.getString(KEY_SERVER_TIME));
 
             } else if (resultCode == RESULT_FAIL) {
                 // There was a error, log massage

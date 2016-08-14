@@ -17,6 +17,7 @@
     <string name="massage_operation_barcode">Пригответе баркода с операцията и натиснтене бутона.</string>
     <string name="massage_operation_qr_code">Пригответе QR кода с партидата и натиснтене бутона.</string>
     <string name="button_load">Зареди операция</string>
+    <string name="button_load_next">Зареди следваща операция</string>
     <string name="button_load_qr">Зареди партида</string>
     <string name="button_load_start">Начало на работа</string>
     <string name="title_operation">Операция</string>
@@ -28,30 +29,40 @@
     <string name="massage_barcode_failed">Възникна проблем с разчитането на баркода.</string>
     <string name="massage_qr_code_failed">Възникна проблем с разчитането на QR кода.</string>
     <string name="massage_start_work_failed">Възникна проблем със стартирането на задачата. Заредете операцията и партидата и опитайте отново.</string>
-    <string name="title_batch_number">Номер:\u0020</string>
-    <string name="title_batch_count">Брой:\u0020</string>
-    <string name="title_batch_size">Размер:\u0020</string>
-    <string name="title_batch_colour">Цвят:\u0020</string>
-    <string name="title_machine">Машина:\u0020</string>
+    <string name="title_batch_number">Номер: %1$s</string>
+    <string name="title_batch_count">Брой: %1$s</string>
+    <string name="title_batch_size">Размер: %1$s</string>
+    <string name="title_batch_colour">Цвят: %1$s</string>
+    <string name="title_machine">Машина: %1$s</string>
     <string name="menu_reference">Справки</string>
     <string name="menu_exit">Изход</string>
     <string name="massage_batch_ready">Партидата е завършена. Моля заредете нова партида.</string>
+    <string name="massage_is_separate">Възникна проблем, операцията която се опитвате да заредите трябва да е от тип %1$s.</string>
+    <string name="massage_operation_exists">Операцията вече е заредена.</string>
 
     <!-- Work Activity strings -->
-    <string name="button_pause">Почивка</string>
+    <string name="button_pause">Почивка / Прекъсване</string>
+    <string name="button_stop">Прекъсни изработката</string>
     <string name="button_continue">Продължи</string>
     <string name="button_confirm">Потвърди</string>
     <string name="button_finnish">Завърши</string>
     <string name="confirm_hint">Въведи изработени бройки</string>
     <string name="massage_count">Моля въведете изработените от вас бройки преди да приключите.</string>
     <string name="key_time">time</string>
+    <string name="batch_id_title">Номер партида:</string>
+    <string name="batch_count_title">Бройки в партидата:</string>
+    <string name="batch_size_title">Размер:</string>
+    <string name="batch_colour_title">Цвят:</string>
 
     <!-- Reference Activity strings -->
     <string name="button_date">Избери дата</string>
     <string name="massage_no_reports">Няма информация. Моля изберете друга дата.</string>
-    <string name="total">Общо за дата \u0020</string>
+    <string name="total">Общо:</string>
     <string name="title_model">Модел</string>
     <string name="title_pieces">Бр.</string>
+    <string name="operation">Операция</string>
+    <string name="batch">Партида</string>
+    <string name="total_for_date">Общо за дата %1$s: %2$s записа</string>
 
     <!-- Other strings -->
     <string name="loading">Моля изчакайте!</string>
@@ -59,5 +70,8 @@
     <string name="button_yes">Да</string>
     <string name="button_no">Не</string>
     <string name="button_logout">Смени потребителя</string>
+    <string name="title_activity_load_work">LoadWorkActivity</string>
+    <string name="operation_type_separate">Отделна</string>
+    <string name="operation_type_normal">Последователна</string>
 
 </resources>

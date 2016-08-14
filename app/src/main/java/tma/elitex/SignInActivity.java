@@ -18,6 +18,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import io.fabric.sdk.android.Fabric;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +33,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import tma.elitex.reference.ReferenceActivity;
+import tma.elitex.load.LoadWorkActivity;
 import tma.elitex.server.ServerConnectionService;
 import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
@@ -43,6 +44,7 @@ import tma.elitex.utils.ExitListener;
 import tma.elitex.utils.LoadingDialog;
 import tma.elitex.utils.MassageDialog;
 import tma.elitex.utils.User;
+import tma.elitex.utils.Utils;
 
 /**
  * Created by Krum Iliev.
@@ -64,7 +66,6 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_sign_in);
 
         // Dims the navigation buttons
@@ -75,12 +76,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mElitexData = new ElitexData(this);
-
-        // Checks if the user has checked keep logged on his previous login
-        if (checkIfWorkWasComplected() && mElitexData.getUserData().mKeepLogged) {
-            Intent intent = new Intent(this, LoadActivity.class);
-            startActivity(intent);
-        }
+        mElitexData.resetOperations();
 
         // Initializing server communication
         mResultReceiver = new ServerResultReceiver(new Handler());
@@ -100,6 +96,11 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
         // Hides soft keyboard on initial start
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        // Checks if the user has checked keep logged on his previous login
+        if (checkIfWorkWasComplected() && mElitexData.getUserData().mKeepLogged) {
+            loginToken(mElitexData.getAccessToken());
+        }
     }
 
     /**
@@ -119,8 +120,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
                 // Check how many days have passed since the task was started
                 // this is necessary because the server automatically closes all work tasks in the evening
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.ENGLISH);
-                Date previousDate = df.parse(mElitexData.getOperationAndBatch().mStartDate);
+                DateFormat df = new SimpleDateFormat(Utils.getDateFormat(), Locale.ENGLISH);
+                Date previousDate = df.parse(mElitexData.getWorkData().startDate);
                 Calendar cal = Calendar.getInstance();
                 Date currentDate = df.parse(df.format(cal.getTime()));
                 long diff = previousDate.getTime() - currentDate.getTime();
@@ -248,8 +249,11 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
-    public void requestReady(String result) {
-        mLoading.dismiss(); // Remove loading dialog
+    public void requestReady(String result, String serverTime) {
+        if (mLoading.isShowing()) {
+            mLoading.dismiss(); // Remove loading dialog
+        }
+
         try {
             JSONObject json = new JSONObject(result);
             if (json.has(getString(R.string.key_token))) {
@@ -258,10 +262,11 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 loginToken(token);
 
             } else if (json.has(getString(R.string.key_name))) {
-                saveUserData(json); // Retrieving user information
+                saveUserData(json, serverTime); // Retrieving user information
+
 
                 // Start proceed to next activity
-                Intent intent = new Intent(this, LoadActivity.class);
+                Intent intent = new Intent(this, LoadWorkActivity.class);
                 startActivity(intent);
 
             } else if (json.has(getString(R.string.key_error))) {
@@ -296,7 +301,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
      * @param json Result json from request
      * @throws JSONException If there is a problem with the json file it is delegated to calling method
      */
-    private void saveUserData(JSONObject json) throws JSONException {
+    private void saveUserData(JSONObject json, String serverTime) throws JSONException {
         JSONArray roles = json.getJSONArray(getString(R.string.key_roles));
         Set<String> userRoles = new HashSet<>();
         for (int i = 0; i < roles.length(); i++) {
@@ -315,7 +320,9 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 mKeepLogged.isChecked()
         );
 
-        new ElitexData(this).addUserData(user);
+        ElitexData data = new ElitexData(this);
+        data.addUserData(user);
+        data.setActionBarTitle(user, serverTime);
     }
 
     @Override

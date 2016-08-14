@@ -14,6 +14,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+
+import java.util.concurrent.TimeUnit;
+
+import tma.elitex.load.LoadWorkActivity;
 import tma.elitex.server.ServerConnectionService;
 import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
@@ -21,8 +26,8 @@ import tma.elitex.server.ServerResultReceiver;
 import tma.elitex.utils.ElitexData;
 import tma.elitex.utils.LoadingDialog;
 import tma.elitex.utils.MassageDialog;
-import tma.elitex.utils.FeaturesDialog;
-import tma.elitex.utils.OperationAndBatch;
+import tma.elitex.utils.Utils;
+import tma.elitex.utils.WorkData;
 
 /**
  * Created by Krum Iliev.
@@ -34,22 +39,21 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     private ServerResultReceiver mResultReceiver; // Server service communication
     private ElitexData mElitexData; // Stored data access
 
+    private WorkData mWorkData;
+
     private TextView mTimerText;
     private Handler mTimerHandler;
     private Runnable mTimerRunnable;
     private long mStartTime = 0;
     private long mTimeElapsed = 0;
-    private boolean mTimerIsRunning = false;
 
     private Button mPause;
     private Button mFinnish;
+    private Button mBack;
+    private Button mContinue;
+    private Button mStop;
+    private Button mConfirm;
     private EditText mWorkCount;
-    private LinearLayout mConfirmContainer;
-    private FeaturesDialog mFeaturesDialog;
-
-    // This is used to ensure correct back button functionality if the user wants to continue working
-    // after he has pressed the finnish button
-    private boolean mCanConfirm = false;
 
     private LoadingDialog mLoading;
     private MassageDialog mMassageDialog;
@@ -57,7 +61,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
     private boolean mPausing = false;
     private boolean mResuming = false;
     private boolean mCompletingWork = false;
-    private boolean mCompleting = false; // this is used to ensure correct back navigation when compleating work
+    private boolean mCompleteAfterResume = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +81,7 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
 
         // Initializing Elitex data and setting action bar title
         mElitexData = new ElitexData(this);
-        getSupportActionBar().setTitle(mElitexData.getActionBarTitle());
+        Utils.setupActionBar(this, mElitexData.getActionBarTitle(), getSupportActionBar());
 
         initViews();
 
@@ -108,142 +112,115 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
                 mTimerHandler.postDelayed(this, 500);
             }
         };
-        startWork();
+        startWorkProcess();
     }
 
     private void initViews() {
-        OperationAndBatch operationAndBatch = mElitexData.getOperationAndBatch();
+        mWorkData = mElitexData.getWorkData();
 
-        ((TextView) findViewById(R.id.work_operation)).setText(operationAndBatch.mOperationName);
-        ((TextView) findViewById(R.id.work_model)).setText(operationAndBatch.mModelName);
-        ((TextView) findViewById(R.id.work_machine)).setText(getString(R.string.title_machine) + " " + operationAndBatch.mMachineName);
-        ((TextView) findViewById(R.id.work_batch_number)).setText(getString(R.string.title_batch_number) + " " + operationAndBatch.mBatchNumber);
-        ((TextView) findViewById(R.id.work_count)).setText(getString(R.string.title_batch_count) + " " + operationAndBatch.mRemaining);
-        ((TextView) findViewById(R.id.work_size)).setText(getString(R.string.title_batch_size) + " " + operationAndBatch.mSize);
-        ((TextView) findViewById(R.id.work_colour)).setText(getString(R.string.title_batch_colour) + " " + operationAndBatch.mColour);
-        ((TextView) findViewById(R.id.work_features)).setText(operationAndBatch.mFeatures);
+        ((TextView) findViewById(R.id.work_operation)).setText(mWorkData.workTitle);
+        ((TextView) findViewById(R.id.work_batch_number)).setText(String.valueOf(mWorkData.batch.mBatchNumber));
+        ((TextView) findViewById(R.id.work_count)).setText(String.valueOf(mWorkData.batch.mRemaining));
+        ((TextView) findViewById(R.id.work_size)).setText(mWorkData.batch.mSize);
+        ((TextView) findViewById(R.id.work_colour)).setText(mWorkData.batch.mColour);
+
+        String operations = mWorkData.operationIDs.toString();
+        operations = operations.replace("[", "");
+        operations = operations.replace("]", "");
+        operations = operations.replace("\"", "");
+        ((TextView) findViewById(R.id.work_operation_ids)).setText(operations);
 
         mTimerText = (TextView) findViewById(R.id.work_timer);
         mPause = (Button) findViewById(R.id.work_button_pause);
         mFinnish = (Button) findViewById(R.id.work_button_finnish);
+        mBack = (Button) findViewById(R.id.work_button_back);
+        mContinue = (Button) findViewById(R.id.work_button_resume);
+        mStop = (Button) findViewById(R.id.work_button_stop);
+        mConfirm = (Button) findViewById(R.id.work_button_confirm);
         mWorkCount = (EditText) findViewById(R.id.work_confirm);
-        mConfirmContainer = (LinearLayout) findViewById(R.id.work_confirm_container);
 
-        findViewById(R.id.work_features).setOnClickListener(this);
         mPause.setOnClickListener(this);
         mFinnish.setOnClickListener(this);
-
-        mFeaturesDialog = new FeaturesDialog(this, operationAndBatch.mFeatures);
+        mBack.setOnClickListener(this);
+        mContinue.setOnClickListener(this);
+        mStop.setOnClickListener(this);
+        mConfirm.setOnClickListener(this);
 
         mLoading = new LoadingDialog(this);
         mMassageDialog = new MassageDialog(this);
+
+        if (mWorkData.isSeparate) {
+            mFinnish.setEnabled(false);
+            mFinnish.setBackgroundResource(R.drawable.button_gray);
+            mFinnish.setPadding(20, 20, 20, 20);
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.work_features:
-                mFeaturesDialog.show();
-                break;
             case R.id.work_button_pause:
-                pauseResumeWork();
+                sendPauseWorkRequest();
+                break;
+            case R.id.work_button_resume:
+                sendResumeWorkRequest();
                 break;
             case R.id.work_button_finnish:
-                finishWork();
+                sendStopWorkRequest();
+                break;
+            case R.id.work_button_back:
+                sendResumeWorkRequest();
+                break;
+            case R.id.work_button_stop:
+                stopWorkProcess();
+                break;
+            case R.id.work_button_confirm:
+                mCompleteAfterResume = true;
+                sendResumeWorkRequest();
                 break;
         }
     }
 
-    private void pauseResumeWork() {
-        if (mCompleting) {
-            startWork();
-            return;
-        }
-
-        Intent intent = new Intent(this, ServerConnectionService.class);
-        intent.putExtra(getString(R.string.key_listener), mResultReceiver);
-        intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
-        intent.putExtra(getString(R.string.key_work_id), String.valueOf(mElitexData.getOperationAndBatch().mWorkId));
-
-        if (mTimerIsRunning) {
-            intent.putExtra(getString(R.string.key_request), ServerRequests.PAUSE_WORK);
-            mPausing = true;
-        } else {
-            intent.putExtra(getString(R.string.key_request), ServerRequests.RESUME_WORK);
-            mResuming = true;
-        }
-
-        startService(intent);
+    private void sendPauseWorkRequest() {
         mLoading.show();
-    }
-
-    private void stopWork() {
-        mTimerIsRunning = false;
-        mTimerHandler.removeCallbacks(mTimerRunnable);
-        mPause.setText(getString(R.string.button_continue));
-        mFinnish.setVisibility(View.GONE);
-        mTimeElapsed = mTimeElapsed + (System.currentTimeMillis() - mStartTime);
-    }
-
-    private void startWork() {
-        mTimerIsRunning = true;
-        mCanConfirm = false;
-        mCompleting = false;
-        mConfirmContainer.setVisibility(View.GONE);
-        mTimerText.setVisibility(View.VISIBLE);
-        mStartTime = System.currentTimeMillis();
-        mTimerHandler.postDelayed(mTimerRunnable, 0);
-        mPause.setText(getString(R.string.button_pause));
-        mFinnish.setVisibility(View.VISIBLE);
-        mFinnish.setText(getString(R.string.button_finnish));
-    }
-
-    private void finishWork() {
-        if (mCanConfirm) {
-            sendWorkData();
-        } else {
-            mCompleting = true;
-            mTimerIsRunning = false;
-            mTimerHandler.removeCallbacks(mTimerRunnable);
-            mTimeElapsed = mTimeElapsed + (System.currentTimeMillis() - mStartTime);
-            mPause.setText(getString(R.string.button_back));
-            mFinnish.setText(getString(R.string.button_confirm));
-            mConfirmContainer.setVisibility(View.VISIBLE);
-            mTimerText.setVisibility(View.GONE);
-            mCanConfirm = true;
-            mWorkCount.requestFocus();
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(mWorkCount, InputMethodManager.SHOW_IMPLICIT);
-        }
-    }
-
-    private void sendWorkData() {
-        String data = mWorkCount.getText().toString();
-        if (data.isEmpty()) {
-            new MassageDialog(this, getString(R.string.massage_count)).show();
-            return;
-        }
-
-        int pieces = Integer.valueOf(data);
-        long time = mTimeElapsed / 1000;
-        Log.d(LOG_TAG, "Final count: " + pieces);
-
+        mPausing = true;
         Intent intent = new Intent(this, ServerConnectionService.class);
         intent.putExtra(getString(R.string.key_listener), mResultReceiver);
         intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
-        intent.putExtra(getString(R.string.key_work_id), String.valueOf(mElitexData.getOperationAndBatch().mWorkId));
-        intent.putExtra(getString(R.string.key_time_worked), time);
-        if (pieces != mElitexData.getOperationAndBatch().mTotalPieces) {
-            intent.putExtra(getString(R.string.key_pieces), pieces);
-        }
-        intent.putExtra(getString(R.string.key_request), ServerRequests.COMPLETE_WORK);
+        intent.putExtra(getString(R.string.key_work_ids), mWorkData.workIDs.toString());
+        intent.putExtra(getString(R.string.key_request), ServerRequests.PAUSE_WORK);
+        startService(intent);
+    }
+
+    private void sendResumeWorkRequest() {
+        mLoading.show();
+        if (!mCompleteAfterResume) mResuming = true;
+        Intent intent = new Intent(this, ServerConnectionService.class);
+        intent.putExtra(getString(R.string.key_listener), mResultReceiver);
+        intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
+        intent.putExtra(getString(R.string.key_work_ids), mWorkData.workIDs.toString());
+        intent.putExtra(getString(R.string.key_request), ServerRequests.RESUME_WORK);
+        startService(intent);
+    }
+
+    private void sendStopWorkRequest() {
+        mLoading.show();
         mCompletingWork = true;
+        String data = mWorkCount.getText().toString();
+        int pieces = data.isEmpty() ? 0 : Integer.valueOf(data);
+        long time = TimeUnit.MILLISECONDS.toMinutes(mElitexData.getTimePassed());
+        Intent intent = new Intent(this, ServerConnectionService.class);
+        intent.putExtra(getString(R.string.key_listener), mResultReceiver);
+        intent.putExtra(getString(R.string.key_token), mElitexData.getAccessToken());
+        intent.putExtra(getString(R.string.key_time_worked), time);
+        intent.putExtra(getString(R.string.key_pieces), pieces);
+        intent.putExtra(getString(R.string.key_work_ids), mWorkData.workIDs.toString());
+        intent.putExtra(getString(R.string.key_request), ServerRequests.COMPLETE_WORK);
         startService(intent);
-        mLoading.show();
     }
 
     @Override
-    public void requestReady(String result) {
+    public void requestReady(String result, String serverTime) {
         Log.d(LOG_TAG, result);
         mLoading.dismiss(); // Remove loading dialog
 
@@ -251,21 +228,92 @@ public class WorkActivity extends AppCompatActivity implements View.OnClickListe
         // !!! everything is OK
 
         if (mPausing) {
-            mPausing = false;
-            stopWork();
+            pauseWorkProcess();
         }
 
         if (mResuming) {
-            mResuming = false;
-            startWork();
+            startWorkProcess();
         }
 
         if (mCompletingWork) {
             mCompletingWork = false;
+            mTimerHandler.removeCallbacks(mTimerRunnable);
             mElitexData.saveWorkTime(0);
-            Intent intent = new Intent(this, LoadActivity.class);
+            Intent intent = new Intent(this, LoadWorkActivity.class);
             startActivity(intent);
         }
+
+        if (mCompleteAfterResume) {
+            mCompleteAfterResume = false;
+            sendStopWorkRequest();
+        }
+    }
+
+
+    public void pauseWorkProcess() {
+        mPausing = false;
+
+        mTimerHandler.removeCallbacks(mTimerRunnable);
+        mTimeElapsed = mTimeElapsed + (System.currentTimeMillis() - mStartTime);
+
+        mPause.setVisibility(View.GONE);
+        mFinnish.setVisibility(View.GONE);
+        mConfirm.setVisibility(View.GONE);
+        mBack.setVisibility(View.GONE);
+        mWorkCount.setVisibility(View.GONE);
+
+        mContinue.setVisibility(View.VISIBLE);
+        mStop.setVisibility(View.VISIBLE);
+    }
+
+    private void stopWorkProcess() {
+        mTimerHandler.removeCallbacks(mTimerRunnable);
+        mTimeElapsed = mTimeElapsed + (System.currentTimeMillis() - mStartTime);
+
+        mPause.setVisibility(View.GONE);
+        mFinnish.setVisibility(View.GONE);
+        mContinue.setVisibility(View.GONE);
+        mStop.setVisibility(View.GONE);
+
+        mWorkCount.setVisibility(View.VISIBLE);
+        mConfirm.setVisibility(View.VISIBLE);
+        mBack.setVisibility(View.VISIBLE);
+
+        mWorkCount.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mWorkCount, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    private void startWorkProcess() {
+        mCompletingWork = false;
+        mPausing = false;
+        mResuming = false;
+        mCompleteAfterResume = false;
+
+        mWorkCount.setText("");
+        mWorkCount.setVisibility(View.GONE);
+        mStop.setVisibility(View.GONE);
+        mContinue.setVisibility(View.GONE);
+        mConfirm.setVisibility(View.GONE);
+        mBack.setVisibility(View.GONE);
+
+        mPause.setVisibility(View.VISIBLE);
+        mFinnish.setVisibility(View.VISIBLE);
+
+        if (mWorkData.isSeparate) {
+            mFinnish.setEnabled(false);
+            mFinnish.setBackgroundResource(R.drawable.button_gray);
+            mFinnish.setPadding(20, 20, 20, 20);
+        }
+
+        mStartTime = System.currentTimeMillis();
+        mTimerHandler.postDelayed(mTimerRunnable, 0);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mTimerHandler.removeCallbacks(mTimerRunnable);
     }
 
     @Override

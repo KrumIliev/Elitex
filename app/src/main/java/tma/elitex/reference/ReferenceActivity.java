@@ -11,19 +11,21 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import tma.elitex.LoadActivity;
 import tma.elitex.R;
 import tma.elitex.SignInActivity;
+import tma.elitex.load.LoadWorkActivity;
+import tma.elitex.reference.utils.DateListener;
+import tma.elitex.reference.utils.ReferenceListAdapter;
+import tma.elitex.reference.utils.ReferenceOrder;
+import tma.elitex.reference.utils.ReferenceData;
+import tma.elitex.reference.utils.SelectDateDialog;
 import tma.elitex.server.ServerConnectionService;
 import tma.elitex.server.ServerRequests;
 import tma.elitex.server.ServerResultListener;
@@ -46,9 +48,8 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
     private ElitexData mElitexData; // Stored data access
 
     private ReferenceListAdapter mAdapter;
-    private ArrayList<ReferenceData> mListData;
-    private TextView mTotalTitle;
-    private TextView mTotalValue;
+    private ArrayList<ReferenceOrder> mListData;
+    private TextView mTotal;
     private String mDateSelected;
 
     private LoadingDialog mLoading;
@@ -85,8 +86,7 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
         mAdapter = new ReferenceListAdapter(this, mListData);
         list.setAdapter(mAdapter);
 
-        mTotalTitle = (TextView) findViewById(R.id.ref_total_title);
-        mTotalValue = (TextView) findViewById(R.id.ref_total_value);
+        mTotal = (TextView) findViewById(R.id.ref_total);
 
         // Show date select on initial start
         new SelectDateDialog(this, this).show();
@@ -116,7 +116,7 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
                 new SelectDateDialog(this, this).show();
                 break;
             case R.id.ref_back:
-                startActivity(new Intent(this, LoadActivity.class));
+                startActivity(new Intent(this, LoadWorkActivity.class));
                 break;
         }
     }
@@ -148,37 +148,23 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
     }
 
     @Override
-    public void requestReady(String result) {
+    public void requestReady(String result, String serverTime) {
         Log.d(LOG_TAG, result);
         mLoading.dismiss();
 
         try {
-            JSONArray json = new JSONObject(result).getJSONArray(getString(R.string.key_earnings));
-
-            if (json.length() > 0) {
-
+            ReferenceData mData = ReferenceData.parse(result);
+            if (mData != null && mData.orders.size() > 0) {
                 mListData.clear(); // Remove all previous information
-
-                // Add the data returned from the server
-                for (int i = 0; i < json.length(); i++) {
-                    JSONObject object = (JSONObject) json.get(i);
-                    mListData.add(new ReferenceData(
-                            object.getString(getString(R.string.key_model)),
-                            object.getString(getString(R.string.key_process)),
-                            object.getString(getString(R.string.key_batch)),
-                            object.getString(getString(R.string.key_pieces))
-                    ));
-                }
-
-                setTotal();
+                mListData.addAll(mData.orders);
                 mAdapter.notifyDataSetChanged();
-
+                mDateSelected = mData.date;
+                mTotal.setText(getString(R.string.total_for_date, mData.date, String.valueOf(mData.dateTotal)));
             } else {
                 // There are no earnings for this date
                 mMassageDialog.setMassageText(getString(R.string.massage_no_reports));
                 mMassageDialog.show();
             }
-
 
         } catch (JSONException e) {
             mMassageDialog.setMassageText(getString(R.string.massage_server_failed));
@@ -186,20 +172,6 @@ public class ReferenceActivity extends AppCompatActivity implements View.OnClick
             Crashlytics.logException(e);
             Log.d(LOG_TAG, e.toString());
         }
-    }
-
-    /**
-     * Sets the total values
-     */
-    private void setTotal() {
-        int finalCount = 0;
-        for (int i = 0; i < mListData.size(); i++) {
-            finalCount += Integer.valueOf(mListData.get(i).mPieces);
-        }
-
-        mDateSelected = mDateSelected.replaceAll("-", "/"); // Formats the date from YYYY-MM-DD to YYYY/MM/DD for consistency
-        mTotalTitle.setText(getString(R.string.total) + mDateSelected + " :");
-        mTotalValue.setText(String.valueOf(finalCount));
     }
 
     @Override

@@ -2,11 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tma.elitex" >
 
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name=".ElitexApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -17,21 +18,31 @@
             android:screenOrientation="landscape" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoadActivity" android:screenOrientation="landscape" />
-        <activity android:name=".WorkActivity" android:screenOrientation="landscape" />
-        <activity android:name=".reference.ReferenceActivity" android:screenOrientation="landscape" />
+        <activity
+            android:name=".WorkActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".reference.ReferenceActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".load.LoadWorkActivity"
+            android:screenOrientation="landscape" />
 
-        <service android:name=".server.ServerConnectionService" android:exported="false" />
+        <service
+            android:name=".server.ServerConnectionService"
+            android:exported="false" />
 
-        <receiver android:name=".utils.BootReceiver">
+        <receiver android:name=".utils.BootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="186c24379241f0827ab036c440562a315e24e8cc" />
